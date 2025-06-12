@@ -37,6 +37,7 @@ import com.example.fplyzer.ui.theme.FplTextSecondary as FplTextSecondary1
 fun ManagerScreen(
     managerId: Int,
     onNavigateToLeague: (Int) -> Unit,
+    onNavigateToTeamViewer: (Int) -> Unit,
     onNavigateBack: () -> Unit,
     viewModel: ManagerViewModel = viewModel()
 ) {
@@ -123,7 +124,10 @@ fun ManagerScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        ManagerInfoCard(uiState.manager!!)
+                        ManagerInfoCard(
+                            manager = uiState.manager!!,
+                            onViewTeamClick = { onNavigateToTeamViewer(managerId) }
+                        )
                     }
 
                     item {
@@ -197,7 +201,10 @@ fun ManagerScreen(
 }
 
 @Composable
-fun ManagerInfoCard(manager: Manager) {
+fun ManagerInfoCard(
+    manager: Manager,
+    onViewTeamClick: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -266,6 +273,24 @@ fun ManagerInfoCard(manager: Manager) {
                             color = FplAccent
                         )
                     }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(
+                    onClick = onViewTeamClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = FplAccent,
+                        contentColor = FplPrimaryDark
+                    ),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = "View Team",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -402,37 +427,38 @@ fun GameweekHistoryCard(gameweek: GameweekHistory) {
                     fontWeight = FontWeight.Bold,
                     color = FplGreen
                 )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "Overall Rank",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FplAccent
-                    )
-                    Text(
-                        text = formatNumber(gameweek.overallRank),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "Transfers",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FplAccent
-                    )
-                    Text(
-                        text = "${gameweek.eventTransfers} (-${gameweek.eventTransfersCost})",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White
-                    )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Overall Rank",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = FplAccent
+                        )
+                        Text(
+                            text = formatNumber(gameweek.overallRank),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "Transfers",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = FplAccent
+                        )
+                        Text(
+                            text = "${gameweek.eventTransfers} (-${gameweek.eventTransfersCost})",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }

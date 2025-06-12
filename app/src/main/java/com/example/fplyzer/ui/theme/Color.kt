@@ -21,3 +21,5 @@ val FplBlue = Color(0xFF05F1FF)
 val FplTextPrimary = Color(0xFF212121)
 val FplTextSecondary = Color(0xFF757575)
 val FplTextOnPrimary = Color(0xFFFFFFFF)
+
+val FplDivider = Color(0xFFE0E0E0)

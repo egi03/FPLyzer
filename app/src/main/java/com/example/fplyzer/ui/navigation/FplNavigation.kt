@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.example.fplyzer.ui.screens.dashboard.DashboardScreen
 import com.example.fplyzer.ui.screens.home.HomeScreen
 import com.example.fplyzer.ui.screens.league.LeagueScreen
+import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsScreen
 import com.example.fplyzer.ui.screens.manager.ManagerScreen
 import com.example.fplyzer.ui.screens.playerDetails.PlayerDetailsScreen
 import com.example.fplyzer.ui.screens.players.PlayersScreen
@@ -36,8 +37,15 @@ fun FplNavigation(){
                 },
                 onNavigateToTeamViewer = { managerId ->
                     navController.navigate("team_viewer/$managerId")
+                },
+                onNavigateToLeagueStats = {
+                    navController.navigate("league_stats")
                 }
             )
+        }
+
+        composable("league_stats") {
+            LeagueStatsScreen()
         }
 
         composable("players") {

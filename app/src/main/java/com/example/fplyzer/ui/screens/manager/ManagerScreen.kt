@@ -1,36 +1,36 @@
 package com.example.fplyzer.ui.screens.manager
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fplyzer.data.models.ClassicLeague
 import com.example.fplyzer.data.models.GameweekHistory
 import com.example.fplyzer.data.models.Manager
-import com.example.fplyzer.ui.theme.FplAccent
-import com.example.fplyzer.ui.theme.FplBlue
-import com.example.fplyzer.ui.theme.FplError
-import com.example.fplyzer.ui.theme.FplGreen
-import com.example.fplyzer.ui.theme.FplPrimary
-import com.example.fplyzer.ui.theme.FplPrimaryDark
+import com.example.fplyzer.ui.components.*
+import com.example.fplyzer.ui.theme.*
 import java.text.NumberFormat
 import java.util.Locale
-import com.example.fplyzer.ui.theme.FplTextSecondary as FplTextSecondary1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,148 +48,112 @@ fun ManagerScreen(
     }
 
     Scaffold(
+        containerColor = FplBackground,
         topBar = {
-            TopAppBar(
-                title = { Text("Manager Details", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = Color.White)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = FplPrimaryDark,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+            ModernManagerTopBar(
+                managerName = uiState.manager?.fullName ?: "Manager",
+                onNavigateBack = onNavigateBack
             )
         }
     ) { paddingValues ->
         when {
             uiState.isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .background(FplPrimaryDark),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = FplAccent)
-                }
+                ModernLoadingState(paddingValues)
             }
 
             uiState.error != null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .background(FplPrimaryDark),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Default.Error,
-                            contentDescription = "Error",
-                            modifier = Modifier.size(64.dp),
-                            tint = FplError
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = uiState.error!!,
-                            color = FplError,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 32.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadManagerData(managerId) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = FplAccent
-                            )
-                        ) {
-                            Text("Retry", color = FplPrimaryDark)
-                        }
-                    }
-                }
+                ModernErrorState(
+                    error = uiState.error!!,
+                    paddingValues = paddingValues,
+                    onRetry = { viewModel.loadManagerData(managerId) }
+                )
             }
 
             uiState.manager != null -> {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
-                        .background(FplPrimaryDark),
-                    contentPadding = PaddingValues(16.dp),
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        ManagerInfoCard(
-                            manager = uiState.manager!!,
-                            onViewTeamClick = { onNavigateToTeamViewer(managerId) }
-                        )
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + scaleIn()
+                        ) {
+                            ModernManagerProfileCard(
+                                manager = uiState.manager!!,
+                                onViewTeamClick = { onNavigateToTeamViewer(managerId) }
+                            )
+                        }
                     }
 
                     item {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            StatCard(
+                            AnimatedStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "GW Points",
                                 value = uiState.manager!!.summaryEventPoints.toString(),
                                 icon = Icons.Default.Star,
-                                containerColor = FplGreen
+                                containerColor = FplGreen,
+                                delay = 200
                             )
-                            StatCard(
+                            AnimatedStatCard(
                                 modifier = Modifier.weight(1f),
                                 title = "GW Rank",
                                 value = formatNumber(uiState.manager!!.summaryEventRank),
                                 icon = Icons.Default.TrendingUp,
-                                containerColor = FplBlue
+                                containerColor = FplBlue,
+                                delay = 300
                             )
                         }
                     }
 
                     item {
-                        TabRow(
-                            selectedTabIndex = uiState.selectedTab,
-                            containerColor = FplPrimaryDark,
-                            contentColor = Color.White,
-                            indicator = { tabPositions ->
-                                TabRowDefaults.Indicator(
-                                    Modifier.tabIndicatorOffset(tabPositions[uiState.selectedTab]),
-                                    color = FplAccent
-                                )
-                            }
-                        ) {
-                            Tab(
-                                selected = uiState.selectedTab == 0,
-                                onClick = { viewModel.selectTab(0) },
-                                text = { Text("Leagues", color = Color.White) }
-                            )
-                            Tab(
-                                selected = uiState.selectedTab == 1,
-                                onClick = { viewModel.selectTab(1) },
-                                text = { Text("History", color = Color.White) }
-                            )
-                        }
+                        ModernTabSection(
+                            selectedTab = uiState.selectedTab,
+                            onTabSelected = viewModel::selectTab
+                        )
                     }
 
                     when (uiState.selectedTab) {
                         0 -> {
-                            items(uiState.manager!!.leagues.classic) { league ->
-                                LeagueCard(
-                                    league = league,
-                                    onClick = { onNavigateToLeague(league.id) }
-                                )
+                            items(
+                                items = uiState.manager!!.leagues.classic,
+                                key = { it.id }
+                            ) { league ->
+                                AnimatedVisibility(
+                                    visible = true,
+                                    enter = fadeIn() + slideInHorizontally()
+                                ) {
+                                    ModernLeagueCard(
+                                        league = league,
+                                        onClick = { onNavigateToLeague(league.id) }
+                                    )
+                                }
                             }
                         }
                         1 -> {
                             uiState.history?.let { history ->
-                                items(history.current.reversed()) { gameweek ->
-                                    GameweekHistoryCard(gameweek)
+                                item {
+                                    ModernSeasonStats(history)
+                                }
+                                items(
+                                    items = history.current.reversed(),
+                                    key = { it.event }
+                                ) { gameweek ->
+                                    AnimatedVisibility(
+                                        visible = true,
+                                        enter = fadeIn() + slideInVertically()
+                                    ) {
+                                        ModernGameweekHistoryCard(gameweek)
+                                    }
                                 }
                             }
                         }
@@ -200,96 +164,248 @@ fun ManagerScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManagerInfoCard(
+fun ModernManagerTopBar(
+    managerName: String,
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Column {
+                Text(
+                    text = "MANAGER PROFILE",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = FplTextSecondary,
+                    letterSpacing = 1.sp
+                )
+                Text(
+                    text = managerName,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(
+                onClick = onNavigateBack,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .clip(CircleShape)
+                    .background(FplPrimary.copy(alpha = 0.1f))
+            ) {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = FplPrimary
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = FplSurface,
+            titleContentColor = FplTextPrimary,
+            navigationIconContentColor = FplPrimary
+        )
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun ModernManagerProfileCard(
     manager: Manager,
     onViewTeamClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = FplPrimary
+    var isExpanded by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isExpanded) 1.02f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
+
+    GradientCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .scale(scale),
+        gradientColors = listOf(
+            FplGradientStart,
+            FplGradientMiddle,
+            FplGradientEnd
         ),
-        elevation = CardDefaults.cardElevation(8.dp),
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.extraLarge
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(FplPrimary, FplPrimaryDark)
-                    )
-                )
+        Column(
+            modifier = Modifier.padding(24.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = manager.fullName,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = manager.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = FplAccent
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = manager.summaryOverallPoints.toString(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Total Points",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = FplAccent
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = formatNumber(manager.summaryOverallRank),
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Overall Rank",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = FplAccent
-                        )
-                    }
+                Column {
+                    Text(
+                        text = manager.fullName,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = manager.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = FplAccentLight
+                    )
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                Button(
-                    onClick = onViewTeamClick,
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = FplAccent,
-                        contentColor = FplPrimaryDark
-                    ),
-                    shape = MaterialTheme.shapes.medium
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(FplGlass.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "View Team",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = manager.playerFirstName.first().toString(),
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = FplAccent,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AnimatedContent(
+                        targetState = manager.summaryOverallPoints,
+                        transitionSpec = {
+                            slideInVertically { -it } + fadeIn() with
+                                    slideOutVertically { it } + fadeOut()
+                        }
+                    ) { points ->
+                        Text(
+                            text = points.toString(),
+                            style = MaterialTheme.typography.displaySmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                    Text(
+                        text = "TOTAL POINTS",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FplAccentLight,
+                        letterSpacing = 1.sp
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .height(60.dp)
+                        .background(FplGlass.copy(alpha = 0.3f))
+                )
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AnimatedContent(
+                        targetState = formatNumber(manager.summaryOverallRank),
+                        transitionSpec = {
+                            slideInVertically { -it } + fadeIn() with
+                                    slideOutVertically { it } + fadeOut()
+                        }
+                    ) { rank ->
+                        Text(
+                            text = rank,
+                            style = MaterialTheme.typography.displaySmall,
+                            color = Color.White,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                    Text(
+                        text = "OVERALL RANK",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = FplAccentLight,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            ModernButton(
+                onClick = {
+                    isExpanded = !isExpanded
+                    onViewTeamClick()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                text = "View Current Team",
+                icon = Icons.Default.Groups,
+                gradient = listOf(FplAccent, FplAccentDark)
+            )
+        }
+    }
+}
+
+@Composable
+fun ModernTabSection(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    val tabs = listOf(
+        "Leagues" to Icons.Default.EmojiEvents,
+        "History" to Icons.Default.Timeline
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        tabs.forEachIndexed { index, (title, icon) ->
+            val isSelected = selectedTab == index
+            val backgroundColor by animateColorAsState(
+                targetValue = if (isSelected) FplPrimary else FplSurface,
+                animationSpec = tween(300)
+            )
+            val contentColor by animateColorAsState(
+                targetValue = if (isSelected) Color.White else FplTextSecondary,
+                animationSpec = tween(300)
+            )
+
+            Surface(
+                onClick = { onTabSelected(index) },
+                modifier = Modifier.weight(1f),
+                shape = MaterialTheme.shapes.medium,
+                color = backgroundColor
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = contentColor,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = contentColor,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                     )
                 }
             }
@@ -297,92 +413,79 @@ fun ManagerInfoCard(
     }
 }
 
-@Composable
-fun StatCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    value: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    containerColor: Color
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = containerColor.copy(alpha = 0.1f)
-        ),
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = containerColor,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = containerColor
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary1
-            )
-        }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LeagueCard(
+fun ModernLeagueCard(
     league: ClassicLeague,
     onClick: () -> Unit
 ) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = FplPrimary
-        ),
-        elevation = CardDefaults.cardElevation(2.dp),
-        shape = MaterialTheme.shapes.medium
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(FplSecondaryLight, FplSecondary)
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = league.name,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold,
+                    color = FplTextPrimary
                 )
                 Row(
-                    modifier = Modifier.padding(top = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Rank: ${league.rank ?: "-"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = FplAccent
-                    )
-                    if (league.maxEntries != null) {
+                    league.rank?.let { rank ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.TrendingUp,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = FplAccent
+                            )
+                            Text(
+                                text = "Rank $rank",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = FplTextSecondary
+                            )
+                        }
+                    }
+                    league.maxEntries?.let { size ->
                         Text(
-                            text = "Size: ${league.maxEntries}",
+                            text = "• $size players",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = FplAccent
+                            color = FplTextSecondary
                         )
                     }
                 }
@@ -390,76 +493,268 @@ fun LeagueCard(
             Icon(
                 Icons.Default.ChevronRight,
                 contentDescription = "View League",
-                tint = FplAccent
+                tint = FplPrimary
             )
         }
     }
 }
 
 @Composable
-fun GameweekHistoryCard(gameweek: GameweekHistory) {
+fun ModernSeasonStats(history: com.example.fplyzer.data.models.ManagerHistory) {
+    val totalTransfers = history.current.sumOf { it.eventTransfers }
+    val totalHits = history.current.sumOf { it.eventTransfersCost }
+    val avgPoints = history.current.map { it.points }.average()
+
+    GlassmorphicCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Text(
+                text = "Season Statistics",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = FplTextPrimary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = String.format("%.1f", avgPoints),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = FplGreen
+                    )
+                    Text(
+                        text = "Avg Points",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FplTextSecondary
+                    )
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = totalTransfers.toString(),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = FplBlue
+                    )
+                    Text(
+                        text = "Transfers",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FplTextSecondary
+                    )
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = "-$totalHits",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = FplRed
+                    )
+                    Text(
+                        text = "Hits Taken",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FplTextSecondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ModernGameweekHistoryCard(gameweek: GameweekHistory) {
+    val rankChange = when {
+        gameweek.event == 1 -> 0
+        else -> 0 // Would need previous GW data
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = FplPrimary
-        ),
-        elevation = CardDefaults.cardElevation(1.dp),
-        shape = MaterialTheme.shapes.medium
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(FplPrimary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "GW",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = FplPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Text(
+                        text = gameweek.event.toString(),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = "${gameweek.points} pts",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = FplGreen
+                    )
+                    if (gameweek.eventTransfersCost > 0) {
+                        Text(
+                            text = "-${gameweek.eventTransfersCost} hit",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = FplRed
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Gameweek ${gameweek.event}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White
-                )
-                Text(
-                    text = "${gameweek.points} pts",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = FplGreen
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            text = "Overall Rank",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = FplAccent
-                        )
-                        Text(
-                            text = formatNumber(gameweek.overallRank),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = "Transfers",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = FplAccent
-                        )
-                        Text(
-                            text = "${gameweek.eventTransfers} (-${gameweek.eventTransfersCost})",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
-                        )
-                    }
+                Column {
+                    Text(
+                        text = "Overall Rank",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FplTextSecondary
+                    )
+                    Text(
+                        text = formatNumber(gameweek.overallRank),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "Transfers",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FplTextSecondary
+                    )
+                    Text(
+                        text = gameweek.eventTransfers.toString(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ModernLoadingState(paddingValues: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(FplBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            val infiniteTransition = rememberInfiniteTransition()
+            val scale by infiniteTransition.animateFloat(
+                initialValue = 0.8f,
+                targetValue = 1.2f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1000),
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .scale(scale)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(FplAccent, FplSecondary)
+                        )
+                    )
+            )
+            Text(
+                text = "Loading Manager Data...",
+                style = MaterialTheme.typography.titleMedium,
+                color = FplTextSecondary
+            )
+        }
+    }
+}
+
+@Composable
+fun ModernErrorState(
+    error: String,
+    paddingValues: PaddingValues,
+    onRetry: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(FplBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        GlassmorphicCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Default.Error,
+                    contentDescription = "Error",
+                    modifier = Modifier.size(64.dp),
+                    tint = FplError
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = FplError,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                ModernButton(
+                    onClick = onRetry,
+                    text = "Try Again",
+                    icon = Icons.Default.Refresh
+                )
             }
         }
     }

@@ -1,12 +1,12 @@
 package com.example.fplyzer.ui.screens.home
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,9 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,15 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.fplyzer.ui.theme.FplAccent
-import com.example.fplyzer.ui.theme.FplError
-import com.example.fplyzer.ui.theme.FplPrimary
-import com.example.fplyzer.ui.theme.FplPrimaryDark
+import com.example.fplyzer.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onNavigateToManager: (Int) -> Unit,
+    onNavigateToLeagueStats: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
@@ -44,8 +39,9 @@ fun HomeScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        FplPrimary,
-                        FplPrimaryDark
+                        FplGradientStart,
+                        FplGradientMiddle,
+                        FplGradientEnd
                     )
                 )
             )
@@ -57,107 +53,160 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // App Icon
             Card(
                 modifier = Modifier.size(120.dp),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = Color.White
                 ),
-                elevation = CardDefaults.cardElevation(8.dp)
+                elevation = CardDefaults.cardElevation(12.dp)
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "FPL",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = FplPrimary,
-                        fontWeight = FontWeight.Bold
+                    Icon(
+                        Icons.Default.Analytics,
+                        contentDescription = "FPL Analytics",
+                        modifier = Modifier.size(64.dp),
+                        tint = FplPrimary
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(32.dp))
+
+            // App Title
             Text(
-                text = "FPL Stats Tracker",
-                style = MaterialTheme.typography.headlineMedium,
+                text = "FPL League Analytics",
+                style = MaterialTheme.typography.headlineLarge,
                 color = Color.White,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center
             )
             Text(
-                text = "Track your FPL performance",
+                text = "Comprehensive league statistics and insights",
                 style = MaterialTheme.typography.bodyLarge,
-                color = FplAccent,
-                modifier = Modifier.padding(top = 8.dp)
+                color = FplAccentLight,
+                modifier = Modifier.padding(top = 8.dp),
+                textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.height(48.dp))
-            OutlinedTextField(
-                value = uiState.managerIdInput,
-                onValueChange = viewModel::updateManagerId,
+
+            // League ID Input Card
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Enter FPL Manager ID", color = FplAccent) },
-                placeholder = { Text("e.g. 123456", color = Color.White.copy(alpha = 0.7f)) },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Search
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.95f)
                 ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        if (uiState.managerIdInput.isNotEmpty()) {
-                            keyboardController?.hide()
-                            onNavigateToManager(uiState.managerIdInput.toInt())
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Enter League ID",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = FplPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Find your league ID in the FPL app or website",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = FplTextSecondary,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    OutlinedTextField(
+                        value = uiState.leagueIdInput,
+                        onValueChange = viewModel::updateLeagueId,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("League ID") },
+                        placeholder = { Text("e.g. 314159") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                if (uiState.leagueIdInput.isNotEmpty()) {
+                                    keyboardController?.hide()
+                                    onNavigateToLeagueStats(uiState.leagueIdInput.toInt())
+                                }
+                            }
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = FplAccent,
+                            unfocusedBorderColor = FplDivider,
+                            focusedLabelColor = FplAccent,
+                            cursorColor = FplAccent
+                        ),
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = FplAccent
+                            )
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = {
+                            if (uiState.leagueIdInput.isNotEmpty()) {
+                                keyboardController?.hide()
+                                onNavigateToLeagueStats(uiState.leagueIdInput.toInt())
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        enabled = uiState.leagueIdInput.isNotEmpty() && !uiState.isLoading,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = FplAccent,
+                            contentColor = FplPrimaryDark
+                        ),
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        if (uiState.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = FplPrimaryDark,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Analytics,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "Analyze League",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
-                ),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = FplAccent,
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                    focusedLabelColor = FplAccent,
-                    unfocusedLabelColor = Color.White.copy(alpha = 0.7f),
-                    cursorColor = FplAccent,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
-                ),
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = FplAccent
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = {
-                    if (uiState.managerIdInput.isNotEmpty()) {
-                        keyboardController?.hide()
-                        onNavigateToManager(uiState.managerIdInput.toInt())
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                enabled = uiState.managerIdInput.isNotEmpty() && !uiState.isLoading,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = FplAccent,
-                    contentColor = FplPrimaryDark
-                ),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = FplPrimaryDark
-                    )
-                } else {
-                    Text(
-                        text = "Get Statistics",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
                 }
             }
+
+            // Error message
             AnimatedVisibility(
                 visible = uiState.error != null,
                 enter = fadeIn() + slideInVertically(),
@@ -176,8 +225,50 @@ fun HomeScreen(
                         text = uiState.error ?: "",
                         color = FplError,
                         modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Features highlight
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.White.copy(alpha = 0.1f)
+                ),
+                elevation = CardDefaults.cardElevation(0.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Text(
+                        text = "What you'll get:",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val features = listOf(
+                        "📊 Comprehensive league statistics",
+                        "👥 Head-to-head comparisons",
+                        "🎯 Player ownership analysis",
+                        "🏆 Chip usage insights",
+                        "📈 Performance trends"
+                    )
+
+                    features.forEach { feature ->
+                        Text(
+                            text = feature,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = FplAccentLight,
+                            modifier = Modifier.padding(vertical = 2.dp)
+                        )
+                    }
                 }
             }
         }

@@ -40,11 +40,16 @@ import com.example.fplyzer.ui.components.playerAnalytics.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeagueStatsScreen(
+    leagueId: Int,
+    onNavigateBack: () -> Unit,
     viewModel: LeagueStatsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
-    var leagueIdInput by remember { mutableStateOf("") }
-    val keyboardController = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+
+    // Load league data when screen opens
+    LaunchedEffect(leagueId) {
+        viewModel.loadLeagueStatistics(leagueId)
+    }
 
     Scaffold(
         containerColor = FplBackground,
@@ -73,10 +78,34 @@ fun LeagueStatsScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        Text(
-                            text = "League Analytics",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
+                        Column {
+                            Text(
+                                text = "League Analytics",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (uiState.leagueStatistics != null) {
+                                Text(
+                                    text = "ID: $leagueId",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = FplTextSecondary
+                                )
+                            }
+                        }
+                    }
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clip(CircleShape)
+                            .background(FplSecondary.copy(alpha = 0.1f))
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = FplSecondary
                         )
                     }
                 },
@@ -88,20 +117,6 @@ fun LeagueStatsScreen(
         }
     ) { paddingValues ->
         when {
-            uiState.leagueStatistics == null && !uiState.isLoading -> {
-                LeagueInputScreen(
-                    paddingValues = paddingValues,
-                    leagueIdInput = leagueIdInput,
-                    onLeagueIdChange = { leagueIdInput = it },
-                    onAnalyze = {
-                        if (leagueIdInput.isNotEmpty()) {
-                            keyboardController?.hide()
-                            viewModel.loadLeagueStatistics(leagueIdInput.toInt())
-                        }
-                    }
-                )
-            }
-
             uiState.isLoading -> {
                 LoadingScreen(paddingValues)
             }
@@ -111,10 +126,9 @@ fun LeagueStatsScreen(
                     error = uiState.error!!,
                     paddingValues = paddingValues,
                     onRetry = {
-                        if (leagueIdInput.isNotEmpty()) {
-                            viewModel.loadLeagueStatistics(leagueIdInput.toInt())
-                        }
-                    }
+                        viewModel.loadLeagueStatistics(leagueId)
+                    },
+                    onNavigateBack = onNavigateBack
                 )
             }
 
@@ -123,83 +137,6 @@ fun LeagueStatsScreen(
                     uiState = uiState,
                     viewModel = viewModel,
                     paddingValues = paddingValues
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LeagueInputScreen(
-    paddingValues: PaddingValues,
-    leagueIdInput: String,
-    onLeagueIdChange: (String) -> Unit,
-    onAnalyze: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
-        contentAlignment = Alignment.Center
-    ) {
-        GlassmorphicCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    Icons.Default.Analytics,
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = FplSecondary
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = "Enter League ID",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = FplTextPrimary
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Get comprehensive analytics for any FPL league",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = FplTextSecondary,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                OutlinedTextField(
-                    value = leagueIdInput,
-                    onValueChange = onLeagueIdChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("e.g., 314159") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { onAnalyze() }
-                    ),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = FplSecondary,
-                        unfocusedBorderColor = FplDivider,
-                        cursorColor = FplSecondary
-                    ),
-                    shape = MaterialTheme.shapes.medium
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                ModernButton(
-                    onClick = onAnalyze,
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = leagueIdInput.isNotEmpty(),
-                    text = "Analyze League",
-                    icon = Icons.Default.TrendingUp,
-                    gradient = listOf(FplSecondary, FplSecondaryDark)
                 )
             }
         }
@@ -313,6 +250,129 @@ fun LeagueHeaderCard(stats: LeagueStatistics) {
 }
 
 @Composable
+fun LoadingScreen(paddingValues: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(FplBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            val infiniteTransition = rememberInfiniteTransition()
+            val rotation by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                )
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(80.dp)
+                    .graphicsLayer { rotationZ = rotation }
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.sweepGradient(
+                            colors = listOf(
+                                FplSecondary,
+                                FplSecondaryLight,
+                                FplSecondary
+                            )
+                        )
+                    )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                        .clip(CircleShape)
+                        .background(FplBackground)
+                )
+            }
+            Text(
+                text = "Analyzing League Data...",
+                style = MaterialTheme.typography.titleMedium,
+                color = FplTextSecondary
+            )
+        }
+    }
+}
+
+@Composable
+fun ErrorScreen(
+    error: String,
+    paddingValues: PaddingValues,
+    onRetry: () -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+            .background(FplBackground),
+        contentAlignment = Alignment.Center
+    ) {
+        GlassmorphicCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Default.Error,
+                    contentDescription = "Error",
+                    modifier = Modifier.size(64.dp),
+                    tint = FplError
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Unable to load league",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = FplTextPrimary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FplError,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onNavigateBack,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Go Back")
+                    }
+                    Button(
+                        onClick = onRetry,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = FplError
+                        )
+                    ) {
+                        Text("Try Again")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun OverviewTab(
     uiState: LeagueStatsUiState,
     viewModel: LeagueStatsViewModel
@@ -408,40 +468,6 @@ fun HeadToHeadTab(
                 uiState.leagueStatistics?.managerStats?.get(id)
             }
 
-            // Points progression chart
-            item {
-                val data = selectedManagers.associate { manager ->
-                    manager.managerId to manager.pointsHistory
-                }
-                val labels = selectedManagers.associate { manager ->
-                    manager.managerId to manager.managerName
-                }
-
-                LineChart(
-                    data = data,
-                    labels = labels,
-                    title = "Points Progression",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
-            // Rank progression chart
-            item {
-                val data = selectedManagers.associate { manager ->
-                    manager.managerId to manager.rankHistory
-                }
-                val labels = selectedManagers.associate { manager ->
-                    manager.managerId to manager.managerName
-                }
-
-                LineChart(
-                    data = data,
-                    labels = labels,
-                    title = "Rank Progression",
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
             // Comparison stats
             item {
                 ComparisonStatsCard(selectedManagers)
@@ -514,20 +540,6 @@ fun AnalyticsTab(
             LeagueAveragesCard(uiState.leagueStatistics?.leagueAverages)
         }
 
-//        // Consistency chart
-//        item {
-//            val data = uiState.leagueStatistics?.consistency?.take(10)?.map {
-//                it.managerName to it.consistency.toFloat()
-//            } ?: emptyList()
-//
-//            BarChart(
-//                data = data,
-//                title = "Most Consistent Managers",
-//                barColor = FplAccent,
-//                modifier = Modifier.fillMaxWidth()
-//            )
-//        }
-
         // Monthly performance
         item {
             MonthlyPerformanceCard(uiState.leagueStatistics)
@@ -536,6 +548,129 @@ fun AnalyticsTab(
         // Transfer efficiency
         item {
             TransferEfficiencyCard(uiState.leagueStatistics)
+        }
+    }
+}
+
+@Composable
+fun PlayersTab(
+    uiState: LeagueStatsUiState,
+    viewModel: LeagueStatsViewModel
+) {
+    if (uiState.isLoadingPlayers) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = FplSecondary)
+        }
+        return
+    }
+
+    val playerAnalytics = uiState.playerAnalytics ?: return
+
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Position filter
+        item {
+            val positions = listOf("All", "GKP", "DEF", "MID", "FWD")
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(positions) { position ->
+                    ModernChip(
+                        text = position,
+                        selected = (position == "All" && uiState.selectedPosition == null) ||
+                                position == uiState.selectedPosition,
+                        onClick = {
+                            viewModel.setSelectedPosition(if (position == "All") null else position)
+                        }
+                    )
+                }
+            }
+        }
+
+        // Template team
+        item {
+            val templatePlayers = playerAnalytics.playerOwnership.filter { it.isTemplate }
+            val templateOwnership = uiState.leagueStatistics?.managerStats?.values?.count { manager ->
+                // Check if manager has all template players
+                true // This would need actual calculation
+            }?.toDouble()?.div(uiState.leagueStatistics.managerStats.size) ?: 0.0
+
+            TemplateTeamCard(
+                templatePlayers = templatePlayers,
+                templateOwnership = templateOwnership
+            )
+        }
+
+        // Ownership distribution
+        item {
+            OwnershipDistributionChart(
+                playerOwnership = playerAnalytics.playerOwnership,
+                position = uiState.selectedPosition
+            )
+        }
+
+        // Most captained
+        item {
+            Text(
+                text = "Most Captained",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = FplTextPrimary
+            )
+        }
+        items(playerAnalytics.captaincy.take(5)) { captaincy ->
+            CaptaincyCard(captaincy)
+        }
+
+        // Differentials
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Top Differentials",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = FplTextPrimary
+                )
+                Text(
+                    text = "< 10% owned",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = FplTextSecondary
+                )
+            }
+        }
+        items(playerAnalytics.differentials.take(10)) { differential ->
+            DifferentialCard(differential)
+        }
+
+        // All players by ownership
+        item {
+            Text(
+                text = "All Players by Ownership",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = FplTextPrimary
+            )
+        }
+
+        val filteredPlayers = if (uiState.selectedPosition != null) {
+            playerAnalytics.playerOwnership.filter { it.position == uiState.selectedPosition }
+        } else {
+            playerAnalytics.playerOwnership
+        }
+
+        items(filteredPlayers) { player ->
+            PlayerOwnershipCard(player)
         }
     }
 }
@@ -952,229 +1087,5 @@ fun TransferEfficiencyCard(stats: LeagueStatistics?) {
             barColor = FplGreen,
             modifier = Modifier.fillMaxWidth()
         )
-    }
-}
-
-@Composable
-fun LoadingScreen(paddingValues: PaddingValues) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .background(FplBackground),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            val infiniteTransition = rememberInfiniteTransition()
-            val rotation by infiniteTransition.animateFloat(
-                initialValue = 0f,
-                targetValue = 360f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                )
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .graphicsLayer { rotationZ = rotation }
-                    .clip(CircleShape)
-                    .background(
-                        brush = Brush.sweepGradient(
-                            colors = listOf(
-                                FplSecondary,
-                                FplSecondaryLight,
-                                FplSecondary
-                            )
-                        )
-                    )
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp)
-                        .clip(CircleShape)
-                        .background(FplBackground)
-                )
-            }
-            Text(
-                text = "Analyzing League Data...",
-                style = MaterialTheme.typography.titleMedium,
-                color = FplTextSecondary
-            )
-        }
-    }
-}
-
-@Composable
-fun ErrorScreen(
-    error: String,
-    paddingValues: PaddingValues,
-    onRetry: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .background(FplBackground),
-        contentAlignment = Alignment.Center
-    ) {
-        GlassmorphicCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    Icons.Default.Error,
-                    contentDescription = "Error",
-                    modifier = Modifier.size(64.dp),
-                    tint = FplError
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = error,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = FplError,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-                ModernButton(
-                    onClick = onRetry,
-                    text = "Try Again",
-                    icon = Icons.Default.Refresh
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun PlayersTab(
-    uiState: LeagueStatsUiState,
-    viewModel: LeagueStatsViewModel
-) {
-    if (uiState.isLoadingPlayers) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(color = FplSecondary)
-        }
-        return
-    }
-
-    val playerAnalytics = uiState.playerAnalytics ?: return
-
-    LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Position filter
-        item {
-            val positions = listOf("All", "GKP", "DEF", "MID", "FWD")
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(positions) { position ->
-                    ModernChip(
-                        text = position,
-                        selected = (position == "All" && uiState.selectedPosition == null) ||
-                                position == uiState.selectedPosition,
-                        onClick = {
-                            viewModel.setSelectedPosition(if (position == "All") null else position)
-                        }
-                    )
-                }
-            }
-        }
-
-        // Template team
-        item {
-            val templatePlayers = playerAnalytics.playerOwnership.filter { it.isTemplate }
-            val templateOwnership = uiState.leagueStatistics?.managerStats?.values?.count { manager ->
-                // Check if manager has all template players
-                true // This would need actual calculation
-            }?.toDouble()?.div(uiState.leagueStatistics.managerStats.size) ?: 0.0
-
-            TemplateTeamCard(
-                templatePlayers = templatePlayers,
-                templateOwnership = templateOwnership
-            )
-        }
-
-        // Ownership distribution
-        item {
-            OwnershipDistributionChart(
-                playerOwnership = playerAnalytics.playerOwnership,
-                position = uiState.selectedPosition
-            )
-        }
-
-        // Most captained
-        item {
-            Text(
-                text = "Most Captained",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
-            )
-        }
-        items(playerAnalytics.captaincy.take(5)) { captaincy ->
-            CaptaincyCard(captaincy)
-        }
-
-        // Differentials
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Top Differentials",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = FplTextPrimary
-                )
-                Text(
-                    text = "< 10% owned",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = FplTextSecondary
-                )
-            }
-        }
-        items(playerAnalytics.differentials.take(10)) { differential ->
-            DifferentialCard(differential)
-        }
-
-        // All players by ownership
-        item {
-            Text(
-                text = "All Players by Ownership",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
-            )
-        }
-
-        val filteredPlayers = if (uiState.selectedPosition != null) {
-            playerAnalytics.playerOwnership.filter { it.position == uiState.selectedPosition }
-        } else {
-            playerAnalytics.playerOwnership
-        }
-
-        items(filteredPlayers) { player ->
-            PlayerOwnershipCard(player)
-        }
     }
 }

@@ -45,15 +45,16 @@ class LeagueStatsViewModel: ViewModel() {
             try {
                 val leagueResult = repository.getLeagueStandings(leagueId)
                 if (leagueResult.isFailure) {
-                    throw Exception("Failed to load league data")
+                    throw Exception("Failed to load league data. Please check if the league ID is correct.")
                 }
 
                 val leagueData = leagueResult.getOrNull()!!
                 val allManagers = mutableListOf<StandingResult>()
                 allManagers.addAll(leagueData.standings.results)
 
+                // Load all pages if there are multiple pages
                 var currentPage = 1
-                while (leagueData.standings.hasNext && currentPage < 10) {
+                while (leagueData.standings.hasNext && currentPage < 10) { // Limit to 10 pages for safety
                     currentPage++
                     val nextPageResult = repository.getLeagueStandings(leagueId, currentPage)
                     if (nextPageResult.isSuccess) {
@@ -61,24 +62,33 @@ class LeagueStatsViewModel: ViewModel() {
                     }
                 }
 
-                // Load history for each manager
+                // Load history for each manager (with error handling for individual failures)
                 val managerStats = allManagers.map { standing ->
                     async {
-                        loadManagerStatistics(standing.entry)
+                        try {
+                            loadManagerStatistics(standing.entry)
+                        } catch (e: Exception) {
+                            // Skip managers that fail to load
+                            null
+                        }
                     }
-                }.awaitAll()
+                }.awaitAll().filterNotNull()
+
+                if (managerStats.isEmpty()) {
+                    throw Exception("Unable to load manager data for this league.")
+                }
 
                 // Calculate league statistics
                 val leagueStats = calculateLeagueStatistics(
                     leagueData.league,
                     allManagers,
-                    managerStats.filterNotNull()
+                    managerStats
                 )
 
                 _uiState.value = _uiState.value.copy(
                     leagueStatistics = leagueStats,
                     sortedManagers = sortManagers(
-                        managerStats.filterNotNull(),
+                        managerStats,
                         _uiState.value.currentSortOption
                     ),
                     isLoading = false
@@ -86,7 +96,7 @@ class LeagueStatsViewModel: ViewModel() {
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Unknown error occurred",
+                    error = e.message ?: "An unknown error occurred while loading league data.",
                     isLoading = false
                 )
             }
@@ -108,7 +118,7 @@ class LeagueStatsViewModel: ViewModel() {
             }
         } catch (e: Exception) {
             null
-        } as ManagerStatistics?
+        }
     }
 
     private fun calculateManagerStatistics(
@@ -137,7 +147,7 @@ class LeagueStatsViewModel: ViewModel() {
         val teamValue = gameweeks.lastOrNull()?.value ?: 0
         val benchPoints = gameweeks.sumOf { it.pointsOnBench }
 
-        val captainPoints = 0
+        val captainPoints = 0 // Would need additional calculation
 
         val rankHistory = gameweeks.map { it.overallRank }
         val pointsHistory = gameweeks.map { it.points }
@@ -291,8 +301,8 @@ class LeagueStatsViewModel: ViewModel() {
         }.sortedBy { it.consistency }
     }
 
-    private fun analyzeChips(manager: List<ManagerStatistics>): ChipAnalysis {
-        var allChips = manager.flatMap { manager ->
+    private fun analyzeChips(managers: List<ManagerStatistics>): ChipAnalysis {
+        val allChips = managers.flatMap { manager ->
             manager.chipsUsed.map { chip ->
                 ChipPerformance(
                     managerId = manager.managerId,
@@ -374,7 +384,7 @@ class LeagueStatsViewModel: ViewModel() {
             selectedManagerIds = if (current.contains(managerId)) {
                 current - managerId
             } else {
-                current + managerId
+                if (current.size < 5) current + managerId else current
             }
         )
     }
@@ -448,7 +458,6 @@ class LeagueStatsViewModel: ViewModel() {
                     val captainCount = captainMap[playerId]?.count { it.isCaptain } ?: 0
                     val effectiveOwnership = ownershipPct + (captainCount / totalManagers * 100)
 
-
                     PlayerOwnership(
                         playerId = playerId,
                         playerName = player.webName,
@@ -484,7 +493,6 @@ class LeagueStatsViewModel: ViewModel() {
                 val differentials = playerOwnership
                     .filter { it.isDifferential }
                     .map { ownership ->
-                        val player = playerMap[ownership.playerId]!!
                         DifferentialPick(
                             playerId = ownership.playerId,
                             playerName = ownership.playerName,
@@ -562,8 +570,7 @@ class LeagueStatsViewModel: ViewModel() {
     }
 }
 
-
-// helpers
+// Helper data classes
 private data class OwnershipInfo(
     val managerId: Int,
     val isStarting: Boolean

@@ -192,8 +192,8 @@ private fun EnhancedLeagueStatsContent(
                 2 -> ChipsTab(uiState, viewModel)
                 3 -> TrendsTab(uiState, viewModel)
                 4 -> PlayersTab(uiState, viewModel)
-                5 -> DifferentialsTab(uiState, viewModel)
-                6 -> WhatIfTab(uiState, viewModel)
+                5 -> com.example.fplyzer.ui.screens.leagueStats.tabs.DifferentialsTab(uiState, viewModel)
+                6 -> com.example.fplyzer.ui.screens.leagueStats.tabs.WhatIfTab(uiState, viewModel)
             }
         }
     }
@@ -425,73 +425,6 @@ private fun EnhancedErrorScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-// New tabs matching iOS
-@Composable
-private fun DifferentialsTab(
-    uiState: LeagueStatsUiState,
-    viewModel: LeagueStatsViewModel
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Icon(
-                Icons.Default.Psychology,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = FplSecondary.copy(alpha = 0.5f)
-            )
-            Text(
-                text = "Differential Analysis",
-                style = MaterialTheme.typography.headlineSmall,
-                color = FplTextPrimary
-            )
-            Text(
-                text = "Coming Soon",
-                style = MaterialTheme.typography.bodyLarge,
-                color = FplTextSecondary
-            )
-        }
-    }
-}
-
-@Composable
-private fun WhatIfTab(
-    uiState: LeagueStatsUiState,
-    viewModel: LeagueStatsViewModel
-) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Icon(
-                Icons.Default.QuestionMark,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = FplSecondary.copy(alpha = 0.5f)
-            )
-            Text(
-                text = "What-If Scenarios",
-                style = MaterialTheme.typography.headlineSmall,
-                color = FplTextPrimary
-            )
-            Text(
-                text = "Coming Soon",
-                style = MaterialTheme.typography.bodyLarge,
-                color = FplTextSecondary
-            )
         }
     }
 }

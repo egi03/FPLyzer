@@ -1,27 +1,31 @@
 package com.example.fplyzer.ui.screens.home
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Analytics
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.fplyzer.ui.components.*
 import com.example.fplyzer.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,10 +46,15 @@ fun HomeScreen(
                         FplGradientStart,
                         FplGradientMiddle,
                         FplGradientEnd
-                    )
+                    ),
+                    startY = 0f,
+                    endY = Float.POSITIVE_INFINITY
                 )
             )
     ) {
+        // Animated background shapes
+        AnimatedBackgroundShapes()
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,155 +62,117 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // App Icon
-            Card(
-                modifier = Modifier.size(120.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White
-                ),
-                elevation = CardDefaults.cardElevation(12.dp)
+            // Animated App Icon
+            AnimatedAppIcon()
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // App Title with animation
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(1000)) +
+                        slideInVertically(initialOffsetY = { -50 })
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        Icons.Default.Analytics,
-                        contentDescription = "FPL Analytics",
-                        modifier = Modifier.size(64.dp),
-                        tint = FplPrimary
+                    Text(
+                        text = "FPL League Analytics",
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Comprehensive league statistics and insights",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = FplAccentLight,
+                        modifier = Modifier.padding(top = 8.dp),
+                        textAlign = TextAlign.Center
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // App Title
-            Text(
-                text = "FPL League Analytics",
-                style = MaterialTheme.typography.headlineLarge,
-                color = Color.White,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "Comprehensive league statistics and insights",
-                style = MaterialTheme.typography.bodyLarge,
-                color = FplAccentLight,
-                modifier = Modifier.padding(top = 8.dp),
-                textAlign = TextAlign.Center
-            )
-
             Spacer(modifier = Modifier.height(48.dp))
 
-            // League ID Input Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.95f)
-                ),
-                elevation = CardDefaults.cardElevation(8.dp)
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(1200, delayMillis = 300)) +
+                        slideInVertically(initialOffsetY = { 100 })
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                GlassmorphicCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge
                 ) {
-                    Text(
-                        text = "Enter League ID",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = FplPrimary
-                    )
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Analytics,
+                                contentDescription = null,
+                                tint = FplPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                text = "Enter League ID",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = FplPrimary
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = "Find your league ID in the FPL app or website",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextSecondary,
-                        textAlign = TextAlign.Center
-                    )
+                        Text(
+                            text = "Find your league ID in the FPL app or website",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = FplTextSecondary,
+                            textAlign = TextAlign.Center
+                        )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                    OutlinedTextField(
-                        value = uiState.leagueIdInput,
-                        onValueChange = viewModel::updateLeagueId,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("League ID") },
-                        placeholder = { Text("e.g. 314159") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Search
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onSearch = {
+                        TextField(
+                            value = uiState.leagueIdInput,
+                            onValueChange = viewModel::updateLeagueId,
+                            placeholder = "e.g. 314159",
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Search
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    if (uiState.leagueIdInput.isNotEmpty()) {
+                                        keyboardController?.hide()
+                                        onNavigateToLeagueStats(uiState.leagueIdInput.toInt())
+                                    }
+                                }
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        ModernButton(
+                            onClick = {
                                 if (uiState.leagueIdInput.isNotEmpty()) {
                                     keyboardController?.hide()
                                     onNavigateToLeagueStats(uiState.leagueIdInput.toInt())
                                 }
-                            }
-                        ),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = FplAccent,
-                            unfocusedBorderColor = FplDivider,
-                            focusedLabelColor = FplAccent,
-                            cursorColor = FplAccent
-                        ),
-                        trailingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = FplAccent
-                            )
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Button(
-                        onClick = {
-                            if (uiState.leagueIdInput.isNotEmpty()) {
-                                keyboardController?.hide()
-                                onNavigateToLeagueStats(uiState.leagueIdInput.toInt())
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        enabled = uiState.leagueIdInput.isNotEmpty() && !uiState.isLoading,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = FplAccent,
-                            contentColor = FplPrimaryDark
-                        ),
-                        shape = MaterialTheme.shapes.medium
-                    ) {
-                        if (uiState.isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = FplPrimaryDark,
-                                strokeWidth = 2.dp
-                            )
-                        } else {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Analytics,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Text(
-                                    text = "Analyze League",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            enabled = uiState.leagueIdInput.isNotEmpty() && !uiState.isLoading,
+                            isLoading = uiState.isLoading,
+                            text = "Analyze League",
+                            icon = Icons.Default.Analytics,
+                            gradient = listOf(FplAccent, FplAccentDark)
+                        )
                     }
                 }
             }
@@ -221,56 +192,230 @@ fun HomeScreen(
                     ),
                     shape = MaterialTheme.shapes.medium
                 ) {
-                    Text(
-                        text = uiState.error ?: "",
-                        color = FplError,
+                    Row(
                         modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Error,
+                            contentDescription = null,
+                            tint = FplError,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Text(
+                            text = uiState.error ?: "",
+                            color = FplError,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Features highlight
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.White.copy(alpha = 0.1f)
-                ),
-                elevation = CardDefaults.cardElevation(0.dp)
+            // Features highlight with animation
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(1500, delayMillis = 600))
             ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
+                FeaturesCard()
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimatedBackgroundShapes() {
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(20000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Floating shapes
+        Box(
+            modifier = Modifier
+                .size(300.dp)
+                .offset(x = (-50).dp, y = 100.dp)
+                .rotate(rotation)
+                .clip(CircleShape)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            FplAccent.copy(alpha = 0.1f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .offset(x = 200.dp, y = 500.dp)
+                .rotate(-rotation)
+                .clip(CircleShape)
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            FplSecondary.copy(alpha = 0.1f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+    }
+}
+
+@Composable
+private fun AnimatedAppIcon() {
+    val infiniteTransition = rememberInfiniteTransition()
+
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .size(120.dp)
+            .scale(scale),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier.fillMaxSize(),
+            shape = RoundedCornerShape(30.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White
+            ),
+            elevation = CardDefaults.cardElevation(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                FplPrimary,
+                                FplPrimaryDark
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Analytics,
+                    contentDescription = "FPL Analytics",
+                    modifier = Modifier.size(64.dp),
+                    tint = Color.White
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text("League ID") },
+        placeholder = { Text(placeholder) },
+        singleLine = true,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = FplAccent,
+            unfocusedBorderColor = FplDivider,
+            focusedLabelColor = FplAccent,
+            cursorColor = FplAccent,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White
+        ),
+        shape = RoundedCornerShape(16.dp),
+        trailingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = FplAccent
+            )
+        }
+    )
+}
+
+@Composable
+private fun FeaturesCard() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White.copy(alpha = 0.1f)
+        ),
+        elevation = CardDefaults.cardElevation(0.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Text(
+                text = "What you'll get:",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val features = listOf(
+                FeatureItem("📊", "Comprehensive league statistics"),
+                FeatureItem("👥", "Head-to-head comparisons"),
+                FeatureItem("🎯", "Player ownership analysis"),
+                FeatureItem("🏆", "Chip usage insights"),
+                FeatureItem("📈", "Performance trends"),
+                FeatureItem("🔮", "Differential analysis"),
+                FeatureItem("💡", "What-if scenarios")
+            )
+
+            features.forEach { feature ->
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = "What you'll get:",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        text = feature.emoji,
+                        style = MaterialTheme.typography.titleMedium
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    val features = listOf(
-                        "📊 Comprehensive league statistics",
-                        "👥 Head-to-head comparisons",
-                        "🎯 Player ownership analysis",
-                        "🏆 Chip usage insights",
-                        "📈 Performance trends"
+                    Text(
+                        text = feature.text,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = FplAccentLight
                     )
-
-                    features.forEach { feature ->
-                        Text(
-                            text = feature,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = FplAccentLight,
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        )
-                    }
                 }
             }
         }
     }
 }
+
+data class FeatureItem(
+    val emoji: String,
+    val text: String
+)

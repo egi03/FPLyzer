@@ -1,7 +1,8 @@
 package com.example.fplyzer.ui.navigation
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,13 +11,42 @@ import androidx.navigation.navArgument
 import com.example.fplyzer.ui.screens.home.HomeScreen
 import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsScreen
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun FplNavigation(){
+fun FplNavigation() {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "home",
+        enterTransition = {
+            fadeIn(animationSpec = tween(300)) +
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(400)
+                    )
+        },
+        exitTransition = {
+            fadeOut(animationSpec = tween(300)) +
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(400)
+                    )
+        },
+        popEnterTransition = {
+            fadeIn(animationSpec = tween(300)) +
+                    slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(400)
+                    )
+        },
+        popExitTransition = {
+            fadeOut(animationSpec = tween(300)) +
+                    slideOutOfContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(400)
+                    )
+        }
     ) {
         composable("home") {
             HomeScreen(

@@ -5,13 +5,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fplyzer.data.models.*
+import com.example.fplyzer.data.models.differentials.DifferentialAnalysis
 import com.example.fplyzer.data.models.statistics.*
+import com.example.fplyzer.data.models.whatif.WhatIfScenario
 import com.example.fplyzer.data.repository.FplRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
+import com.example.fplyzer.data.models.differentials.*
+import com.example.fplyzer.data.models.whatif.*
+import com.example.fplyzer.data.models.differentials.DifferentialPick as DiffAnalysisPick
+
+import com.example.fplyzer.data.models.differentials.DifferentialOutcome
+import com.example.fplyzer.data.models.differentials.DifferentialImpact
+import com.example.fplyzer.data.models.differentials.RiskLevel
+import com.example.fplyzer.data.models.differentials.MissedDifferential
+import com.example.fplyzer.data.models.differentials.LeagueDifferentialSummary
+
+import com.example.fplyzer.data.models.whatif.WhatIfResult
+import com.example.fplyzer.data.models.whatif.ScenarioType
+import com.example.fplyzer.data.models.whatif.ScenarioImpact
+import com.example.fplyzer.data.models.whatif.WhatIfSummary
+
 
 data class LeagueStatsUiState(
     val leagueId: Int = 0,
@@ -25,7 +42,11 @@ data class LeagueStatsUiState(
     val isLoading: Boolean = false,
     val isLoadingPlayers: Boolean = false,
     val error: String? = null,
-    val selectedTab: Int = 0 // 0: Overview, 1: H2H, 2: Chips, 3: Analytics, 4: Players
+    val selectedTab: Int = 0,
+    val differentialAnalyses: List<DifferentialAnalysis> = emptyList(),
+    val whatIfScenarios: List<WhatIfScenario> = emptyList(),
+    val isLoadingDifferentials: Boolean = false,
+    val isLoadingWhatIf: Boolean = false
 )
 
 class LeagueStatsViewModel: ViewModel() {
@@ -392,8 +413,22 @@ class LeagueStatsViewModel: ViewModel() {
     fun setSelectedTab(tab: Int) {
         _uiState.value = _uiState.value.copy(selectedTab = tab)
 
-        if (tab == 4 && _uiState.value.playerAnalytics == null) {
-            loadPlayerAnalytics()
+        when (tab) {
+            4 -> { // Players tab
+                if (_uiState.value.playerAnalytics == null && !_uiState.value.isLoadingPlayers) {
+                    loadPlayerAnalytics()
+                }
+            }
+            5 -> { // Differentials tab
+                if (_uiState.value.differentialAnalyses.isEmpty() && !_uiState.value.isLoadingDifferentials) {
+                    loadDifferentialAnalyses()
+                }
+            }
+            6 -> { // What-If tab
+                if (_uiState.value.whatIfScenarios.isEmpty() && !_uiState.value.isLoadingWhatIf) {
+                    loadWhatIfScenarios()
+                }
+            }
         }
     }
 
@@ -430,6 +465,7 @@ class LeagueStatsViewModel: ViewModel() {
                 val teamMap = bootstrap.teams.associateBy { it.id }
                 val positionMap = bootstrap.elementTypes.associateBy { it.id }
 
+                // Fix the type inference by explicitly typing the maps
                 val playerOwnershipMap = mutableMapOf<Int, MutableList<OwnershipInfo>>()
                 val captainMap = mutableMapOf<Int, MutableList<CaptainInfo>>()
 
@@ -493,7 +529,7 @@ class LeagueStatsViewModel: ViewModel() {
                 val differentials = playerOwnership
                     .filter { it.isDifferential }
                     .map { ownership ->
-                        DifferentialPick(
+                        DifferentialPick( // This uses the existing statistics DifferentialPick
                             playerId = ownership.playerId,
                             playerName = ownership.playerName,
                             teamName = ownership.teamName,
@@ -501,8 +537,9 @@ class LeagueStatsViewModel: ViewModel() {
                             points = ownership.points,
                             pointsPerMillion = ownership.points / ownership.price,
                             managers = playerOwnershipMap[ownership.playerId]
-                                ?.mapNotNull { leagueStats.managerStats[it.managerId]?.managerName }
-                                ?: emptyList(),
+                                ?.mapNotNull { ownershipInfo ->
+                                    leagueStats.managerStats[ownershipInfo.managerId]?.managerName
+                                } ?: emptyList(),
                             differentialScore = ownership.points * (1 - ownership.ownershipPercentage / 100)
                         )
                     }.sortedByDescending { it.differentialScore }
@@ -568,6 +605,69 @@ class LeagueStatsViewModel: ViewModel() {
     fun setSelectedPosition(position: String?) {
         _uiState.value = _uiState.value.copy(selectedPosition = position)
     }
+
+    fun loadDifferentialAnalyses() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingDifferentials = true)
+
+            try {
+                val currentGW = getCurrentGameweek()
+                val analysesResult = repository.getDifferentialAnalysis(_uiState.value.leagueId, currentGW)
+
+                if (analysesResult.isSuccess) {
+                    val analyses = analysesResult.getOrNull() ?: emptyList()
+                    _uiState.value = _uiState.value.copy(
+                        differentialAnalyses = analyses,
+                        isLoadingDifferentials = false
+                    )
+                } else {
+                    throw analysesResult.exceptionOrNull() ?: Exception("Failed to load differential analysis")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to load differential analysis: ${e.message}",
+                    isLoadingDifferentials = false
+                )
+            }
+        }
+    }
+
+    fun loadWhatIfScenarios() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoadingWhatIf = true)
+
+            try {
+                val currentGW = getCurrentGameweek()
+                val scenariosResult = repository.getWhatIfScenarios(_uiState.value.leagueId, currentGW)
+
+                if (scenariosResult.isSuccess) {
+                    val scenarios = scenariosResult.getOrNull() ?: emptyList()
+                    _uiState.value = _uiState.value.copy(
+                        whatIfScenarios = scenarios,
+                        isLoadingWhatIf = false
+                    )
+                } else {
+                    throw scenariosResult.exceptionOrNull() ?: Exception("Failed to load what-if scenarios")
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to load what-if scenarios: ${e.message}",
+                    isLoadingWhatIf = false
+                )
+            }
+        }
+    }
+
+    fun refreshDifferentialAnalyses() {
+        _uiState.value = _uiState.value.copy(differentialAnalyses = emptyList())
+        loadDifferentialAnalyses()
+    }
+
+    // Add a method to refresh what-if data
+    fun refreshWhatIfScenarios() {
+        _uiState.value = _uiState.value.copy(whatIfScenarios = emptyList())
+        loadWhatIfScenarios()
+    }
 }
 
 // Helper data classes
@@ -580,3 +680,29 @@ private data class CaptainInfo(
     val managerId: Int,
     val isCaptain: Boolean
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

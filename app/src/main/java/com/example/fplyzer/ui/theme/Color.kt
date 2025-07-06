@@ -33,6 +33,8 @@ val FplYellow = Color(0xFFFFD700)
 val FplBlue = Color(0xFF05F1FF)
 val FplOrange = Color(0xFFFF6B35)
 val FplPink = Color(0xFFFF006E)
+val FplPurple = Color(0xFF9C27B0)
+val FplGray = Color(0xFF9E9E9E)
 
 val FplTextPrimary = Color(0xFF1A1A1A)
 val FplTextSecondary = Color(0xFF6B6B6B)
@@ -48,3 +50,18 @@ val FplGlassDark = Color(0x1AFFFFFF)
 
 val FplChipBackground = Color(0xFFF0E5FF)
 val FplChipText = Color(0xFF37003C)
+
+
+fun colorForString(colorString: String): androidx.compose.ui.graphics.Color {
+    return when (colorString.lowercase()) {
+        "red" -> FplRed
+        "orange" -> FplOrange
+        "yellow" -> FplYellow
+        "green" -> FplGreen
+        "blue" -> FplBlue
+        "purple" -> FplPurple
+        "pink" -> FplPink
+        "gray", "grey" -> FplGray
+        else -> FplTextSecondary
+    }
+}

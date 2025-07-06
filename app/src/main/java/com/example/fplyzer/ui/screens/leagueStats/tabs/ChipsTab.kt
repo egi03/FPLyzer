@@ -1212,29 +1212,47 @@ private fun calculateEffectiveness(
 ): ChipEffectiveness {
     return when (chipType) {
         ChipType.TRIPLE_CAPTAIN -> {
-            val captainPoints = usage.captainActualPoints ?: (usage.points / 3)
+            // For triple captain, we estimate captain points from total points
+            // Assuming captain got roughly 1/3 of total points (since they're tripled)
+            val estimatedCaptainPoints = usage.captainActualPoints ?: (usage.points / 3)
             when {
-                captainPoints >= 15 -> ChipEffectiveness.EXCELLENT
-                captainPoints >= 10 -> ChipEffectiveness.GOOD
-                captainPoints >= 6 -> ChipEffectiveness.AVERAGE
+                estimatedCaptainPoints >= 15 -> ChipEffectiveness.EXCELLENT
+                estimatedCaptainPoints >= 10 -> ChipEffectiveness.GOOD
+                estimatedCaptainPoints >= 6 -> ChipEffectiveness.AVERAGE
                 else -> ChipEffectiveness.POOR
             }
         }
         ChipType.BENCH_BOOST -> {
-            val benchPoints = usage.benchBoost ?: 0
+            // For bench boost, estimate bench contribution
+            // If benchBoost data isn't available, estimate from total points vs average
+            val benchContribution = usage.benchBoost ?: run {
+                // Estimate bench contribution as points above average
+                val pointsAboveAverage = usage.points - averageScore
+                maxOf(0, pointsAboveAverage.toInt())
+            }
             when {
-                benchPoints >= 25 -> ChipEffectiveness.EXCELLENT
-                benchPoints >= 18 -> ChipEffectiveness.GOOD
-                benchPoints >= 12 -> ChipEffectiveness.AVERAGE
+                benchContribution >= 20 -> ChipEffectiveness.EXCELLENT
+                benchContribution >= 12 -> ChipEffectiveness.GOOD
+                benchContribution >= 6 -> ChipEffectiveness.AVERAGE
                 else -> ChipEffectiveness.POOR
             }
         }
-        else -> {
-            val ratio = usage.points / averageScore
+        ChipType.FREE_HIT -> {
+            // For free hit, compare against average and adjust thresholds
             when {
-                ratio > 1.3 -> ChipEffectiveness.EXCELLENT
-                ratio > 1.0 -> ChipEffectiveness.GOOD
-                ratio > 0.7 -> ChipEffectiveness.AVERAGE
+                usage.points >= averageScore * 1.4 -> ChipEffectiveness.EXCELLENT
+                usage.points >= averageScore * 1.15 -> ChipEffectiveness.GOOD
+                usage.points >= averageScore * 0.9 -> ChipEffectiveness.AVERAGE
+                else -> ChipEffectiveness.POOR
+            }
+        }
+        ChipType.WILDCARD -> {
+            // For wildcard, the effect might be spread over multiple weeks
+            // For now, just compare against average with adjusted thresholds
+            when {
+                usage.points >= averageScore * 1.3 -> ChipEffectiveness.EXCELLENT
+                usage.points >= averageScore * 1.1 -> ChipEffectiveness.GOOD
+                usage.points >= averageScore * 0.85 -> ChipEffectiveness.AVERAGE
                 else -> ChipEffectiveness.POOR
             }
         }
@@ -1318,8 +1336,12 @@ private fun calculateQualityDistribution(
         ChipEffectiveness.POOR to 0
     )
 
+    if (chipUsage.isEmpty()) return distribution
+
+    val averageScore = chipUsage.map { it.second.points }.average()
+
     chipUsage.forEach { (_, usage) ->
-        val effectiveness = calculateEffectiveness(usage, chipType, 0.0) // Simplified
+        val effectiveness = calculateEffectiveness(usage, chipType, averageScore)
         distribution[effectiveness] = distribution[effectiveness]!! + 1
     }
 

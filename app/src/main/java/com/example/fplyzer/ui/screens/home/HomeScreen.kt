@@ -77,17 +77,10 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "FPL League Analytics",
+                        text = "FPL.stats",
                         style = MaterialTheme.typography.headlineLarge,
                         color = Color.White,
                         fontWeight = FontWeight.Black,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = "Comprehensive league statistics and insights",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = FplAccentLight,
-                        modifier = Modifier.padding(top = 8.dp),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -215,13 +208,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Features highlight with animation
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(animationSpec = tween(1500, delayMillis = 600))
-            ) {
-                FeaturesCard()
-            }
         }
     }
 }
@@ -362,60 +348,3 @@ private fun TextField(
         }
     )
 }
-
-@Composable
-private fun FeaturesCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.1f)
-        ),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                text = "What you'll get:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            val features = listOf(
-                FeatureItem("📊", "Comprehensive league statistics"),
-                FeatureItem("👥", "Head-to-head comparisons"),
-                FeatureItem("🎯", "Player ownership analysis"),
-                FeatureItem("🏆", "Chip usage insights"),
-                FeatureItem("📈", "Performance trends"),
-                FeatureItem("🔮", "Differential analysis"),
-                FeatureItem("💡", "What-if scenarios")
-            )
-
-            features.forEach { feature ->
-                Row(
-                    modifier = Modifier.padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = feature.emoji,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = feature.text,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = FplAccentLight
-                    )
-                }
-            }
-        }
-    }
-}
-
-data class FeatureItem(
-    val emoji: String,
-    val text: String
-)

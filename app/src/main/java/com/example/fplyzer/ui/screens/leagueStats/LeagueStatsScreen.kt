@@ -205,7 +205,6 @@ private fun EnhancedTabBar(
     onTabSelected: (Int) -> Unit
 ) {
     val tabs = listOf(
-        TabItem("Records", Icons.Default.EmojiEvents),
         TabItem("Rankings", Icons.Default.Leaderboard),
         TabItem("H2H", Icons.Default.CompareArrows),
         TabItem("Chips", Icons.Default.Stars),

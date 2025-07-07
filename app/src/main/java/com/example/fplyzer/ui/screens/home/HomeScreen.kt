@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.fplyzer.data.models.FavouriteLeague
 import com.example.fplyzer.ui.components.*
 import com.example.fplyzer.ui.theme.*
 
@@ -86,7 +87,22 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Favourite Leagues Section
+            AnimatedVisibility(
+                visible = uiState.favouriteLeagues.isNotEmpty(),
+                enter = fadeIn(animationSpec = tween(800, delayMillis = 200)) +
+                        slideInVertically(initialOffsetY = { 50 })
+            ) {
+                FavouriteLeaguesSection(
+                    favouriteLeagues = uiState.favouriteLeagues,
+                    onLeagueClick = onNavigateToLeagueStats,
+                    onRemoveFavourite = viewModel::removeFavouriteLeague
+                )
+            }
+
+            Spacer(modifier = Modifier.height(if (uiState.favouriteLeagues.isNotEmpty()) 24.dp else 48.dp))
 
             AnimatedVisibility(
                 visible = true,
@@ -208,6 +224,137 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
+        }
+    }
+}
+
+@Composable
+private fun FavouriteLeaguesSection(
+    favouriteLeagues: List<FavouriteLeague>,
+    onLeagueClick: (Int) -> Unit,
+    onRemoveFavourite: (Int) -> Unit
+) {
+    GlassmorphicCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = null,
+                    tint = FplYellow,
+                    modifier = Modifier.size(24.dp)
+                )
+                Text(
+                    text = "Favourite Leagues",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = FplPrimary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            favouriteLeagues.forEach { league ->
+                FavouriteLeagueCard(
+                    league = league,
+                    onClick = { onLeagueClick(league.id) },
+                    onRemove = { onRemoveFavourite(league.id) }
+                )
+                if (league != favouriteLeagues.last()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavouriteLeagueCard(
+    league: FavouriteLeague,
+    onClick: () -> Unit,
+    onRemove: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = league.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = FplTextPrimary
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Group,
+                            contentDescription = null,
+                            tint = FplTextSecondary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "${league.totalManagers} managers",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = FplTextSecondary
+                        )
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.BarChart,
+                            contentDescription = null,
+                            tint = FplTextSecondary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "${String.format("%.1f", league.averagePoints)} avg",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = FplTextSecondary
+                        )
+                    }
+                }
+            }
+
+            IconButton(
+                onClick = onRemove,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(FplRed.copy(alpha = 0.1f))
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Remove favourite",
+                    tint = FplRed,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
         }
     }
 }

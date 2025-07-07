@@ -44,7 +44,9 @@ fun LeagueStatsScreen(
             EnhancedTopBar(
                 leagueId = leagueId,
                 leagueName = uiState.leagueStatistics?.leagueInfo?.name,
-                onNavigateBack = onNavigateBack
+                isFavourite = uiState.isFavourite,
+                onNavigateBack = onNavigateBack,
+                onToggleFavourite = viewModel::toggleFavourite
             )
         }
     ) { paddingValues ->
@@ -78,7 +80,9 @@ fun LeagueStatsScreen(
 private fun EnhancedTopBar(
     leagueId: Int,
     leagueName: String?,
-    onNavigateBack: () -> Unit
+    isFavourite: Boolean,
+    onNavigateBack: () -> Unit,
+    onToggleFavourite: () -> Unit
 ) {
     TopAppBar(
         title = {
@@ -133,6 +137,25 @@ private fun EnhancedTopBar(
                     Icons.Default.ArrowBack,
                     contentDescription = "Back",
                     tint = FplSecondary
+                )
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = onToggleFavourite,
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isFavourite) FplYellow.copy(alpha = 0.2f)
+                        else FplTextSecondary.copy(alpha = 0.1f)
+                    )
+            ) {
+                Icon(
+                    if (isFavourite) Icons.Default.Star else Icons.Default.StarBorder,
+                    contentDescription = if (isFavourite) "Remove from favourites" else "Add to favourites",
+                    tint = if (isFavourite) FplYellow else FplTextSecondary
                 )
             }
         },

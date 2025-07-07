@@ -3,6 +3,8 @@ package com.example.fplyzer.ui.navigation
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -10,11 +12,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fplyzer.ui.screens.home.HomeScreen
 import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsScreen
+import com.example.fplyzer.ui.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FplNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+    val viewModelFactory = ViewModelFactory(context.applicationContext as android.app.Application)
 
     NavHost(
         navController = navController,
@@ -52,7 +57,8 @@ fun FplNavigation() {
             HomeScreen(
                 onNavigateToLeagueStats = { leagueId ->
                     navController.navigate("league_stats/$leagueId")
-                }
+                },
+                viewModel = viewModel(factory = viewModelFactory)
             )
         }
 
@@ -67,7 +73,8 @@ fun FplNavigation() {
                 leagueId = leagueId,
                 onNavigateBack = {
                     navController.popBackStack()
-                }
+                },
+                viewModel = viewModel(factory = viewModelFactory)
             )
         }
     }

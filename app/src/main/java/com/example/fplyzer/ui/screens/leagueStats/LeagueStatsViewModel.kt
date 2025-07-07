@@ -1,9 +1,11 @@
 package com.example.fplyzer.ui.screens.leagueStats
 
+import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fplyzer.data.manager.FavouriteLeaguesManager
 import com.example.fplyzer.data.models.*
 import com.example.fplyzer.data.models.differentials.DifferentialAnalysis
 import com.example.fplyzer.data.models.statistics.*
@@ -46,11 +48,13 @@ data class LeagueStatsUiState(
     val differentialAnalyses: List<DifferentialAnalysis> = emptyList(),
     val whatIfScenarios: List<WhatIfScenario> = emptyList(),
     val isLoadingDifferentials: Boolean = false,
-    val isLoadingWhatIf: Boolean = false
+    val isLoadingWhatIf: Boolean = false,
+    val isFavourite: Boolean = false
 )
 
-class LeagueStatsViewModel: ViewModel() {
+class LeagueStatsViewModel(application: Application): AndroidViewModel(application) {
     private val repository = FplRepository()
+    private val favouriteLeaguesManager = FavouriteLeaguesManager(application)
 
     private val _uiState = mutableStateOf(LeagueStatsUiState())
     val uiState: State<LeagueStatsUiState> = _uiState
@@ -112,6 +116,7 @@ class LeagueStatsViewModel: ViewModel() {
                         managerStats,
                         _uiState.value.currentSortOption
                     ),
+                    isFavourite = favouriteLeaguesManager.isFavourite(leagueId),
                     isLoading = false
                 )
 
@@ -120,6 +125,31 @@ class LeagueStatsViewModel: ViewModel() {
                     error = e.message ?: "An unknown error occurred while loading league data.",
                     isLoading = false
                 )
+            }
+        }
+    }
+
+    fun toggleFavourite() {
+        viewModelScope.launch {
+            val leagueStats = _uiState.value.leagueStatistics ?: return@launch
+            val leagueId = _uiState.value.leagueId
+
+            if (_uiState.value.isFavourite) {
+                // Remove from favourites
+                favouriteLeaguesManager.removeFavouriteLeague(leagueId)
+                _uiState.value = _uiState.value.copy(isFavourite = false)
+            } else {
+                // Add to favourites
+                val favouriteLeague = FavouriteLeague(
+                    id = leagueId,
+                    name = leagueStats.leagueInfo.name,
+                    totalManagers = leagueStats.standings.size,
+                    averagePoints = leagueStats.leagueAverages.averagePoints
+                )
+                val success = favouriteLeaguesManager.addFavouriteLeague(favouriteLeague)
+                if (success) {
+                    _uiState.value = _uiState.value.copy(isFavourite = true)
+                }
             }
         }
     }
@@ -680,29 +710,3 @@ private data class CaptainInfo(
     val managerId: Int,
     val isCaptain: Boolean
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,16 +1,35 @@
 package com.example.fplyzer.ui.components.playerAnalytics
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,12 +39,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.fplyzer.data.models.*
-import com.example.fplyzer.data.models.statistics.*
+import com.example.fplyzer.data.models.statistics.CaptaincyData
+import com.example.fplyzer.data.models.statistics.DifferentialPick
+import com.example.fplyzer.data.models.statistics.PlayerOwnership
 import com.example.fplyzer.ui.components.GlassmorphicCard
-import com.example.fplyzer.ui.components.ModernChip
-import com.example.fplyzer.ui.theme.*
+import com.example.fplyzer.ui.theme.FplAccent
+import com.example.fplyzer.ui.theme.FplAccentLight
+import com.example.fplyzer.ui.theme.FplBlue
+import com.example.fplyzer.ui.theme.FplDivider
+import com.example.fplyzer.ui.theme.FplGlass
+import com.example.fplyzer.ui.theme.FplGreen
+import com.example.fplyzer.ui.theme.FplOrange
+import com.example.fplyzer.ui.theme.FplPrimary
+import com.example.fplyzer.ui.theme.FplPrimaryDark
+import com.example.fplyzer.ui.theme.FplRed
+import com.example.fplyzer.ui.theme.FplSurface
+import com.example.fplyzer.ui.theme.FplTextPrimary
+import com.example.fplyzer.ui.theme.FplTextSecondary
+import com.example.fplyzer.ui.theme.FplYellow
 
 @Composable
 fun PlayerOwnershipCard(
@@ -531,103 +562,6 @@ fun OwnershipDistributionChart(
                         fontWeight = FontWeight.Medium
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun PlayerComparisonCard(
-    player1: PlayerOwnership,
-    player2: PlayerOwnership
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
-        elevation = CardDefaults.cardElevation(4.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                text = "Player Comparison",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = FplTextPrimary,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                // Player 1
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = player1.playerName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = player1.teamName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary
-                    )
-                }
-
-                // VS
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(FplPrimary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "VS",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                // Player 2
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = player2.playerName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = player2.teamName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Comparison metrics
-            val metrics = listOf(
-                "Price" to Pair("£${player1.price}m", "£${player2.price}m"),
-                "Points" to Pair("${player1.points}", "${player2.points}"),
-                "Ownership" to Pair("${player1.ownershipPercentage.toInt()}%", "${player2.ownershipPercentage.toInt()}%"),
-                "Effective Own." to Pair("${player1.effectiveOwnership.toInt()}%", "${player2.effectiveOwnership.toInt()}%")
-            )
-
-            metrics.forEach { (metric, values) ->
-                ComparisonRow(metric, values.first, values.second)
             }
         }
     }

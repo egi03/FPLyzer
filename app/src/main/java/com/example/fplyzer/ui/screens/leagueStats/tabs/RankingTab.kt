@@ -51,7 +51,6 @@ fun RankingsTab(
                 RankingSortType.AVERAGE_POINTS -> uiState.sortedManagers.sortedByDescending { it.averagePoints }
                 RankingSortType.CONSISTENCY -> uiState.sortedManagers.sortedBy { it.standardDeviation }
                 RankingSortType.BEST_WEEK -> uiState.sortedManagers.sortedByDescending { it.bestWeek?.points ?: 0 }
-                RankingSortType.CAPTAIN_SUCCESS -> uiState.sortedManagers.sortedByDescending { it.captainPoints }
                 RankingSortType.BENCH_WASTE -> uiState.sortedManagers.sortedBy { it.benchPoints }
                 RankingSortType.TRANSFERS -> uiState.sortedManagers.sortedByDescending { it.totalTransfers }
             }
@@ -184,9 +183,9 @@ private fun RankingCard(
 private fun ConsistencyDetails(statistics: ManagerStatistics) {
     val consistencyRating = when {
         statistics.standardDeviation < 5 -> "Top tier consistency"
-        statistics.standardDeviation < 8 -> "Very reliable"
-        statistics.standardDeviation < 12 -> "Moderately consistent"
-        statistics.standardDeviation < 18 -> "Inconsistent"
+        statistics.standardDeviation < 10 -> "Very reliable"
+        statistics.standardDeviation < 18 -> "Moderately consistent"
+        statistics.standardDeviation < 30 -> "Inconsistent"
         else -> "Highly unpredictable"
     }
 
@@ -316,175 +315,8 @@ private fun StatItem(
     }
 }
 
-// Trends Tab - Matching iOS TrendsTab
-@Composable
-fun TrendsTab(
-    uiState: LeagueStatsUiState,
-    viewModel: LeagueStatsViewModel
-) {
-    val stats = uiState.leagueStatistics ?: return
-    var selectedMembers by remember { mutableStateOf(setOf<String>()) }
-    var chartType by remember { mutableStateOf(ChartType.CUMULATIVE_POINTS) }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Chart type selector
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            ChartType.values().forEach { type ->
-                FilterChip(
-                    selected = chartType == type,
-                    onClick = { chartType = type },
-                    label = {
-                        Text(
-                            text = type.displayName,
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                    },
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-            }
-        }
-
-        // Member selector
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(stats.managerStats.values.take(10).toList()) { member ->
-                MemberChip(
-                    name = member.managerName,
-                    isSelected = selectedMembers.contains(member.managerName),
-                    color = getColorForMember(member.managerId),
-                    onClick = {
-                        selectedMembers = if (selectedMembers.contains(member.managerName)) {
-                            selectedMembers - member.managerName
-                        } else {
-                            selectedMembers + member.managerName
-                        }
-                    }
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Chart
-        if (selectedMembers.isEmpty()) {
-            EmptyChartView()
-        } else {
-            when (chartType) {
-                ChartType.CUMULATIVE_POINTS -> {
-                    val data = stats.managerStats.values
-                        .filter { selectedMembers.contains(it.managerName) }
-                        .associate { manager ->
-                            manager.managerId to manager.pointsHistory.runningFold(0) { acc, points -> acc + points }.drop(1)
-                        }
-
-                    LineChart(
-                        data = data,
-                        labels = stats.managerStats.mapValues { it.value.managerName },
-                        title = "Cumulative Points",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-                ChartType.GAMEWEEK_POINTS -> {
-                    val data = stats.managerStats.values
-                        .filter { selectedMembers.contains(it.managerName) }
-                        .associate { it.managerId to it.pointsHistory }
-
-                    LineChart(
-                        data = data,
-                        labels = stats.managerStats.mapValues { it.value.managerName },
-                        title = "Gameweek Points",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-                ChartType.RANK_PROGRESSION -> {
-                    val data = stats.managerStats.values
-                        .filter { selectedMembers.contains(it.managerName) }
-                        .associate { it.managerId to it.rankHistory.map { -it } }
-
-                    LineChart(
-                        data = data,
-                        labels = stats.managerStats.mapValues { it.value.managerName },
-                        title = "Rank Progression",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MemberChip(
-    name: String,
-    isSelected: Boolean,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(50),
-        color = if (isSelected) color else color.copy(alpha = 0.2f),
-        modifier = Modifier.animateContentSize()
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isSelected) Color.White else color,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyChartView() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.ShowChart,
-                contentDescription = null,
-                modifier = Modifier.size(60.dp),
-                tint = Color.Gray
-            )
-            Text(
-                text = "Select members to view trends",
-                style = MaterialTheme.typography.bodyLarge,
-                color = FplTextSecondary
-            )
-        }
-    }
-}
-
-// Helper functions and data classes
+// Helpers
 private data class RecordData(
     val type: String,
     val manager: PerformanceMetric?,
@@ -496,15 +328,8 @@ private enum class RankingSortType(val displayName: String, val unit: String) {
     AVERAGE_POINTS("Average Points", "avg"),
     CONSISTENCY("Consistency", "σ"),
     BEST_WEEK("Best Week", "pts"),
-    CAPTAIN_SUCCESS("Captain Success", "%"),
     BENCH_WASTE("Bench Waste", "pts"),
     TRANSFERS("Transfers", "")
-}
-
-private enum class ChartType(val displayName: String) {
-    CUMULATIVE_POINTS("Total Points"),
-    GAMEWEEK_POINTS("GW Points"),
-    RANK_PROGRESSION("Rank")
 }
 
 private fun getStatValue(statistics: ManagerStatistics, sortType: RankingSortType): String {
@@ -512,7 +337,6 @@ private fun getStatValue(statistics: ManagerStatistics, sortType: RankingSortTyp
         RankingSortType.AVERAGE_POINTS -> String.format("%.1f", statistics.averagePoints)
         RankingSortType.CONSISTENCY -> String.format("%.1f", statistics.standardDeviation)
         RankingSortType.BEST_WEEK -> "${statistics.bestWeek?.points ?: 0}"
-        RankingSortType.CAPTAIN_SUCCESS -> String.format("%.1f", 0.0) // TODO caluclate
         RankingSortType.BENCH_WASTE -> "${statistics.benchPoints}"
         RankingSortType.TRANSFERS -> "${statistics.totalTransfers}"
     }
@@ -539,14 +363,13 @@ private fun getSortTypeColor(sortType: RankingSortType): Color {
     return when (sortType) {
         RankingSortType.CONSISTENCY -> FplSecondary
         RankingSortType.AVERAGE_POINTS -> FplGreen
-        RankingSortType.CAPTAIN_SUCCESS -> FplOrange
         RankingSortType.BENCH_WASTE -> FplRed
         RankingSortType.BEST_WEEK -> FplBlue
         RankingSortType.TRANSFERS -> Color.Gray
     }
 }
 
-private fun getColorForMember(id: Int): Color {
+internal fun getColorForMember(id: Int): Color {
     val colors = listOf(FplBlue, FplGreen, FplOrange, FplSecondary, FplRed, FplPink)
     return colors[id % colors.size]
 }

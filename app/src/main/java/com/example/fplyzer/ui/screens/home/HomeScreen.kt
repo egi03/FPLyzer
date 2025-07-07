@@ -4,6 +4,8 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fplyzer.data.models.FavouriteLeague
 import com.example.fplyzer.ui.components.*
@@ -37,6 +40,10 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        viewModel.loadFavouriteLeagues()
+    }
 
     Box(
         modifier = Modifier
@@ -52,8 +59,8 @@ fun HomeScreen(
                     endY = Float.POSITIVE_INFINITY
                 )
             )
+            .imePadding()
     ) {
-        // Animated background shapes
         AnimatedBackgroundShapes()
 
         Column(
@@ -63,12 +70,21 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Animated App Icon
-            AnimatedAppIcon()
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(800))
+            ) {
+                Icon(
+                    Icons.Default.Analytics,
+                    contentDescription = "FPL Analytics",
+                    modifier = Modifier.size(80.dp),
+                    tint = Color.White
+                )
+            }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // App Title with animation
+
             AnimatedVisibility(
                 visible = true,
                 enter = fadeIn(animationSpec = tween(1000)) +
@@ -87,22 +103,7 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Favourite Leagues Section
-            AnimatedVisibility(
-                visible = uiState.favouriteLeagues.isNotEmpty(),
-                enter = fadeIn(animationSpec = tween(800, delayMillis = 200)) +
-                        slideInVertically(initialOffsetY = { 50 })
-            ) {
-                FavouriteLeaguesSection(
-                    favouriteLeagues = uiState.favouriteLeagues,
-                    onLeagueClick = onNavigateToLeagueStats,
-                    onRemoveFavourite = viewModel::removeFavouriteLeague
-                )
-            }
-
-            Spacer(modifier = Modifier.height(if (uiState.favouriteLeagues.isNotEmpty()) 24.dp else 48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             AnimatedVisibility(
                 visible = true,
@@ -186,7 +187,20 @@ fun HomeScreen(
                 }
             }
 
-            // Error message
+            Spacer(modifier = Modifier.height(24.dp))
+
+            AnimatedVisibility(
+                visible = uiState.favouriteLeagues.isNotEmpty(),
+                enter = fadeIn(animationSpec = tween(800, delayMillis = 200)) +
+                        slideInVertically(initialOffsetY = { 50 })
+            ) {
+                FavouriteLeaguesSection(
+                    favouriteLeagues = uiState.favouriteLeagues,
+                    onLeagueClick = onNavigateToLeagueStats,
+                    onRemoveFavourite = viewModel::removeFavouriteLeague
+                )
+            }
+
             AnimatedVisibility(
                 visible = uiState.error != null,
                 enter = fadeIn() + slideInVertically(),
@@ -223,7 +237,6 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
         }
     }
 }
@@ -261,14 +274,16 @@ private fun FavouriteLeaguesSection(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            favouriteLeagues.forEach { league ->
-                FavouriteLeagueCard(
-                    league = league,
-                    onClick = { onLeagueClick(league.id) },
-                    onRemove = { onRemoveFavourite(league.id) }
-                )
-                if (league != favouriteLeagues.last()) {
-                    Spacer(modifier = Modifier.height(12.dp))
+            LazyColumn(
+                modifier = Modifier.heightIn(max = 300.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(favouriteLeagues) { league ->
+                    FavouriteLeagueCard(
+                        league = league,
+                        onClick = { onLeagueClick(league.id) },
+                        onRemove = { onRemoveFavourite(league.id) }
+                    )
                 }
             }
         }
@@ -373,7 +388,6 @@ private fun AnimatedBackgroundShapes() {
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Floating shapes
         Box(
             modifier = Modifier
                 .size(300.dp)
@@ -405,57 +419,6 @@ private fun AnimatedBackgroundShapes() {
                     )
                 )
         )
-    }
-}
-
-@Composable
-private fun AnimatedAppIcon() {
-    val infiniteTransition = rememberInfiniteTransition()
-
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
-
-    Box(
-        modifier = Modifier
-            .size(120.dp)
-            .scale(scale),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxSize(),
-            shape = RoundedCornerShape(30.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White
-            ),
-            elevation = CardDefaults.cardElevation(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                FplPrimary,
-                                FplPrimaryDark
-                            )
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Default.Analytics,
-                    contentDescription = "FPL Analytics",
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.White
-                )
-            }
-        }
     }
 }
 

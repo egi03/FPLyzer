@@ -133,53 +133,123 @@ class FplRepository {
                 val bootstrap = bootstrapResult.getOrNull()!!
                 val allPlayers = bootstrap.elements.associateBy { it.id }
 
-                // Create simplified differential analyses
-                val analyses = managers.take(10).map { manager -> // Limit to first 10 managers for simplicity
-                    // Generate some sample differential picks
-                    val differentialPicks = allPlayers.values
-                        .filter { it.selectedByPercent.toDoubleOrNull()?.let { pct -> pct < 15.0 } == true }
-                        .shuffled()
-                        .take((2..5).random())
-                        .map { player ->
-                            val points = (0..20).random()
-                            val outcome = when {
-                                points >= 15 -> DifferentialOutcome.MASTER_STROKE
-                                points >= 10 -> DifferentialOutcome.GOOD_PICK
-                                points >= 5 -> DifferentialOutcome.NEUTRAL
-                                points >= 2 -> DifferentialOutcome.POOR_CHOICE
-                                else -> DifferentialOutcome.DISASTER
-                            }
+                // Get actual manager teams for recent gameweeks
+                val gameweeksToAnalyze = maxOf(1, currentGameweek - 4)..currentGameweek
+                val managerTeams = mutableMapOf<Int, List<Pair<Int, ManagerTeam>>>()
 
-                            DifferentialPick(
-                                id = "diff_${manager.entry}_${player.id}",
-                                player = PlayerData(
-                                    id = player.id,
-                                    displayName = player.webName,
-                                    webName = player.webName,
-                                    elementType = player.elementType,
-                                    nowCost = player.nowCost,
-                                    totalPoints = player.totalPoints,
-                                    eventPoints = player.eventPoints,
-                                    ownership = player.selectedByPercent.toDoubleOrNull() ?: 0.0,
-                                    form = player.form,
-                                    goalsScored = player.goalsScored,
-                                    assists = player.assists,
-                                    cleanSheets = player.cleanSheets,
-                                    minutes = player.minutes,
-                                    selectedByPercent = player.selectedByPercent,
-                                    pointsPerGame = player.pointsPerGame,
-                                    news = player.news,
-                                    ictIndex = player.ictIndex
-                                ),
-                                gameweeksPicked = listOf(currentGameweek),
-                                pointsScored = points,
-                                leagueOwnership = (5..20).random().toDouble(),
-                                globalOwnership = player.selectedByPercent.toDoubleOrNull() ?: 0.0,
-                                differentialScore = points * (1 - (player.selectedByPercent.toDoubleOrNull() ?: 0.0) / 100),
-                                outcome = outcome,
-                                impact = if (points >= 10) DifferentialImpact.HIGH else DifferentialImpact.MEDIUM
-                            )
+                // Fetch actual teams for each manager
+                managers.take(10).forEach { manager ->
+                    val teams = mutableListOf<Pair<Int, ManagerTeam>>()
+                    gameweeksToAnalyze.forEach { gw ->
+                        try {
+                            val teamResult = getManagerTeam(manager.entry, gw)
+                            if (teamResult.isSuccess) {
+                                teamResult.getOrNull()?.let { team ->
+                                    teams.add(gw to team)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // Skip this gameweek if failed
                         }
+                    }
+                    if (teams.isNotEmpty()) {
+                        managerTeams[manager.entry] = teams
+                    }
+                }
+
+                // Calculate league ownership for each player
+                val leagueOwnership = mutableMapOf<Int, Int>()
+                val totalManagers = managerTeams.size
+
+                managerTeams.values.forEach { teams ->
+                    teams.forEach { (_, team) ->
+                        team.picks.forEach { pick ->
+                            leagueOwnership[pick.element] = (leagueOwnership[pick.element] ?: 0) + 1
+                        }
+                    }
+                }
+
+                // Create actual differential analyses
+                val analyses = managerTeams.map { (managerId, teams) ->
+                    val manager = managers.find { it.entry == managerId }!!
+
+                    // Find actual differential picks
+                    val differentialPicks = mutableListOf<DifferentialPick>()
+
+                    teams.forEach { (gameweek, team) ->
+                        team.picks.forEach { pick ->
+                            val player = allPlayers[pick.element]
+                            if (player != null) {
+                                val leagueOwn = leagueOwnership[pick.element] ?: 0
+                                val leagueOwnershipPct = (leagueOwn.toDouble() / totalManagers) * 100
+                                val globalOwnershipPct = player.selectedByPercent.toDoubleOrNull() ?: 0.0
+
+                                // Consider it a differential if owned by <50% of league AND <20% globally
+                                if (leagueOwnershipPct < 50.0 && globalOwnershipPct < 20.0) {
+                                    // Calculate actual points for this gameweek
+                                    val actualPoints = if (gameweek == currentGameweek) {
+                                        player.eventPoints
+                                    } else {
+                                        // For past gameweeks, we'd need historical data
+                                        // For now, use a portion of total points
+                                        player.totalPoints / 20 // Rough estimate
+                                    }
+
+                                    val outcome = when {
+                                        actualPoints >= 15 -> DifferentialOutcome.MASTER_STROKE
+                                        actualPoints >= 10 -> DifferentialOutcome.GOOD_PICK
+                                        actualPoints >= 5 -> DifferentialOutcome.NEUTRAL
+                                        actualPoints >= 2 -> DifferentialOutcome.POOR_CHOICE
+                                        else -> DifferentialOutcome.DISASTER
+                                    }
+
+                                    // Check if we already have this player
+                                    val existingPickIndex = differentialPicks.indexOfFirst { it.player.id == player.id }
+                                    if (existingPickIndex != -1) {
+                                        // Update existing pick
+                                        val existingPick = differentialPicks[existingPickIndex]
+                                        differentialPicks[existingPickIndex] = existingPick.copy(
+                                            gameweeksPicked = existingPick.gameweeksPicked + gameweek,
+                                            pointsScored = existingPick.pointsScored + actualPoints
+                                        )
+                                    } else {
+                                        // Add new differential pick
+                                        differentialPicks.add(
+                                            DifferentialPick(
+                                                id = "diff_${managerId}_${player.id}",
+                                                player = PlayerData(
+                                                    id = player.id,
+                                                    displayName = player.webName,
+                                                    webName = player.webName,
+                                                    elementType = player.elementType,
+                                                    nowCost = player.nowCost,
+                                                    totalPoints = player.totalPoints,
+                                                    eventPoints = player.eventPoints,
+                                                    ownership = globalOwnershipPct,
+                                                    form = player.form,
+                                                    goalsScored = player.goalsScored,
+                                                    assists = player.assists,
+                                                    cleanSheets = player.cleanSheets,
+                                                    minutes = player.minutes,
+                                                    selectedByPercent = player.selectedByPercent,
+                                                    pointsPerGame = player.pointsPerGame,
+                                                    news = player.news,
+                                                    ictIndex = player.ictIndex
+                                                ),
+                                                gameweeksPicked = listOf(gameweek),
+                                                pointsScored = actualPoints,
+                                                leagueOwnership = leagueOwnershipPct,
+                                                globalOwnership = globalOwnershipPct,
+                                                differentialScore = actualPoints * (1 - leagueOwnershipPct / 100),
+                                                outcome = outcome,
+                                                impact = if (actualPoints >= 10) DifferentialImpact.HIGH else DifferentialImpact.MEDIUM
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     val totalDifferentialPoints = differentialPicks.sumOf { it.pointsScored }
                     val successfulPicks = differentialPicks.count {
@@ -197,18 +267,18 @@ class FplRepository {
                     }
 
                     DifferentialAnalysis(
-                        id = "analysis_${manager.entry}",
-                        managerId = manager.entry,
+                        id = "analysis_$managerId",
+                        managerId = managerId,
                         managerName = manager.playerName,
                         differentialPicks = differentialPicks,
-                        missedOpportunities = emptyList(), // Simplified for now
+                        missedOpportunities = emptyList(),
                         differentialSuccessRate = successRate,
                         totalDifferentialPoints = totalDifferentialPoints,
                         riskRating = riskRating,
                         biggestSuccess = differentialPicks.maxByOrNull { it.pointsScored },
                         biggestFailure = differentialPicks.minByOrNull { it.pointsScored }
                     )
-                }
+                }.filter { it.differentialPicks.isNotEmpty() }
 
                 Result.success(analyses)
             } catch (e: Exception) {

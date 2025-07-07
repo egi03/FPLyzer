@@ -446,16 +446,12 @@ private fun DifferentialAnalysisCard(
                         // Differential Picks
                         if (analysis.differentialPicks.isNotEmpty()) {
                             DifferentialPicksSection(
-                                picks = analysis.differentialPicks.take(5)
+                                picks = analysis.differentialPicks
+                                    .sortedByDescending { it.differentialScore }
+                                    .take(5)
                             )
                         }
 
-                        // Missed Opportunities
-                        if (analysis.missedOpportunities.isNotEmpty()) {
-                            MissedOpportunitiesSection(
-                                missed = analysis.missedOpportunities.take(3)
-                            )
-                        }
                     }
                 }
             }
@@ -493,25 +489,32 @@ private fun DifferentialPicksSection(picks: List<DifferentialPick>) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Differential Picks",
+                text = "Top Differential Picks", // Changed from "Differential Picks"
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "${picks.size} picks",
+                text = "Best ${picks.size} picks", // Changed to indicate these are the best
                 style = MaterialTheme.typography.bodySmall,
                 color = FplTextSecondary
             )
         }
 
-        picks.forEach { pick ->
-            DifferentialPickRow(pick = pick)
+        picks.forEachIndexed { index, pick -> // Add index to show ranking
+            DifferentialPickRow(
+                pick = pick,
+                rank = index + 1 // Pass rank to show #1, #2, etc.
+            )
         }
     }
 }
 
+
 @Composable
-private fun DifferentialPickRow(pick: DifferentialPick) {
+private fun DifferentialPickRow(
+    pick: DifferentialPick,
+    rank: Int? = null
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -520,6 +523,32 @@ private fun DifferentialPickRow(pick: DifferentialPick) {
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Add rank badge if provided
+        rank?.let {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(
+                        when (rank) {
+                            1 -> FplGreen
+                            2 -> FplBlue
+                            3 -> FplOrange
+                            else -> FplGray
+                        }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "#$rank",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+
         // Position Badge
         PositionBadge(position = pick.player.elementType)
 
@@ -543,6 +572,12 @@ private fun DifferentialPickRow(pick: DifferentialPick) {
                     text = "${pick.leagueOwnership.toInt()}% owned",
                     style = MaterialTheme.typography.bodySmall,
                     color = FplBlue
+                )
+                // Show differential score
+                Text(
+                    text = "Score: ${String.format("%.1f", pick.differentialScore)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FplPurple
                 )
             }
         }
@@ -569,6 +604,7 @@ private fun DifferentialPickRow(pick: DifferentialPick) {
         }
     }
 }
+
 
 @Composable
 private fun MissedOpportunitiesSection(missed: List<MissedDifferential>) {

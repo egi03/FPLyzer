@@ -335,7 +335,7 @@ object MockDataFactory {
             gameweek = 15,
             playerOwnership = createMockPlayerOwnership(),
             captaincy = createMockCaptaincyData(),
-            differentials = createMockDifferentials(),
+            differentials = createMockStatisticsDifferentials(),
             templateTeam = listOf(1, 2, 15, 25, 35, 45, 55, 65, 75, 85, 95),
             transferTrends = createMockTransferTrends(),
             playerPerformance = emptyList(),
@@ -407,11 +407,11 @@ object MockDataFactory {
         }.filter { it.captainCount > 0 }
     }
 
-    private fun createMockDifferentials(): List<com.example.fplyzer.data.models.statistics.DifferentialPick> {
+    private fun createMockStatisticsDifferentials(): List<DifferentialPick> {
         val differentialPlayers = listOf("Mbeumo", "Rogers", "Cunha", "Diogo Jota")
 
         return differentialPlayers.mapIndexed { index, name ->
-            com.example.fplyzer.data.models.statistics.DifferentialPick(
+            DifferentialPick(
                 playerId = index + 20,
                 playerName = name,
                 teamName = listOf("BRE", "AVL", "WOL", "LIV")[index],
@@ -449,13 +449,13 @@ object MockDataFactory {
         val standings = createMockStandings()
 
         return standings.take(8).mapIndexed { index, standing ->
-            val differentialPicks = createMockDifferentialPicks(index)
+            val differentialPicks = createMockDifferentialModelPicks(index)
             val successRate = if (differentialPicks.isNotEmpty()) {
                 differentialPicks.count { it.outcome == DifferentialOutcome.MASTER_STROKE || it.outcome == DifferentialOutcome.GOOD_PICK }.toDouble() / differentialPicks.size * 100
             } else 0.0
 
             DifferentialAnalysis(
-                id = "diff_${standing.entry}".toString(),
+                id = "diff_${standing.entry}",
                 managerId = standing.entry,
                 managerName = standing.playerName,
                 differentialModelPicks = differentialPicks,
@@ -467,14 +467,14 @@ object MockDataFactory {
                     2, 3 -> RiskLevel.BALANCED
                     4, 5 -> RiskLevel.AGGRESSIVE
                     else -> RiskLevel.RECKLESS
-                } as RiskLevel,
+                },
                 biggestSuccess = differentialPicks.maxByOrNull { it.pointsScored },
                 biggestFailure = differentialPicks.minByOrNull { it.pointsScored }
             )
         }
     }
 
-    private fun createMockDifferentialPicks(managerIndex: Int): List<DifferentialPick> {
+    private fun createMockDifferentialModelPicks(managerIndex: Int): List<DifferentialModelPick> {
         val differentialPlayers = listOf(
             "Mbeumo" to "BRE",
             "Rogers" to "AVL",
@@ -500,7 +500,7 @@ object MockDataFactory {
                 else -> DifferentialOutcome.DISASTER
             }
 
-            DifferentialPick(
+            DifferentialModelPick(
                 id = "pick_${managerIndex}_$index",
                 player = PlayerData(
                     id = index + 50,

@@ -78,12 +78,6 @@ fun GlassmorphicCard(
 ) {
     Box(
         modifier = modifier
-            .shadow(
-                elevation = 20.dp,
-                shape = shape,
-                ambientColor = FplShadow,
-                spotColor = FplPrimary.copy(alpha = 0.1f)
-            )
             .clip(shape)
             .background(
                 brush = Brush.verticalGradient(

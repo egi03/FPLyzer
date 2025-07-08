@@ -43,6 +43,12 @@ fun LeagueStatsScreen(
         }
     }
 
+    val toggleFavourite: () -> Unit = if (!isDemo) {
+        viewModel::toggleFavourite
+    } else {
+        { /* no-op for demo */ }
+    }
+
     Scaffold(
         containerColor = FplBackground,
         topBar = {
@@ -52,7 +58,7 @@ fun LeagueStatsScreen(
                 isFavourite = uiState.isFavourite,
                 isDemo = isDemo,
                 onNavigateBack = onNavigateBack,
-                onToggleFavourite = (if (!isDemo) viewModel::toggleFavourite else {}) as () -> Unit
+                onToggleFavourite = toggleFavourite
             )
         }
     ) { paddingValues ->
@@ -80,10 +86,6 @@ fun LeagueStatsScreen(
             }
         }
     }
-}
-
-private fun LeagueStatsViewModel.loadDemoData() {
-    TODO("Not yet implemented")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -2,8 +2,11 @@ package com.example.fplyzer.ui.screens.leagueStats
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,7 +28,7 @@ import com.example.fplyzer.ui.components.*
 import com.example.fplyzer.ui.screens.leagueStats.tabs.*
 import com.example.fplyzer.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun LeagueStatsScreen(
     leagueId: Int,
@@ -208,7 +211,7 @@ private fun EnhancedTopBar(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EnhancedLeagueStatsContent(
     uiState: LeagueStatsUiState,
@@ -216,41 +219,44 @@ private fun EnhancedLeagueStatsContent(
     paddingValues: PaddingValues,
     isDemo: Boolean
 ) {
+    val pagerState = rememberPagerState(
+        initialPage = uiState.selectedTab,
+        pageCount = { 7 } // Total number of tabs
+    )
+
+    // Only sync pager state with selected tab when tab is clicked
+    LaunchedEffect(uiState.selectedTab) {
+        if (pagerState.currentPage != uiState.selectedTab) {
+            pagerState.animateScrollToPage(uiState.selectedTab)
+        }
+    }
+
+    // Only sync selected tab with pager state when user swipes
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+        // Only update if user is swiping and page actually changed
+        if (!pagerState.isScrollInProgress && pagerState.currentPage != uiState.selectedTab) {
+            viewModel.setSelectedTab(pagerState.currentPage)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
     ) {
-        // Enhanced Tab Bar matching iOS
+        // Enhanced Tab Bar - now connected to pager
         EnhancedTabBar(
-            selectedTab = uiState.selectedTab,
+            selectedTab = uiState.selectedTab, // Use UI state, not pager state
             onTabSelected = viewModel::setSelectedTab,
             isDemo = isDemo
         )
 
-        // Tab content with animations
-        AnimatedContent(
-            targetState = uiState.selectedTab,
-            transitionSpec = {
-                (fadeIn(animationSpec = tween(300)) +
-                        slideInHorizontally(
-                            initialOffsetX = { fullWidth -> fullWidth },
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow
-                            )
-                        )) with
-                        (fadeOut(animationSpec = tween(200)) +
-                                slideOutHorizontally(
-                                    targetOffsetX = { fullWidth -> -fullWidth },
-                                    animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioNoBouncy,
-                                        stiffness = Spring.StiffnessMedium
-                                    )
-                                ))
-            }
-        ) { tab ->
-            when (tab) {
+        // Swipeable tab content using HorizontalPager
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            when (page) {
                 0 -> RankingsTab(uiState, viewModel)
                 1 -> HeadToHeadTab(uiState, viewModel)
                 2 -> ChipsTab(uiState, viewModel)

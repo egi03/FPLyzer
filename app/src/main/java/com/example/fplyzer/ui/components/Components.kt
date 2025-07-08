@@ -82,8 +82,8 @@ fun GlassmorphicCard(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        FplGlass.copy(alpha = 0.9f),
-                        FplGlass.copy(alpha = 0.7f)
+                        FplGlass.copy(alpha = 0.8f),
+                        FplGlass.copy(alpha = 0.6f)
                     )
                 )
             )
@@ -92,7 +92,7 @@ fun GlassmorphicCard(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color.White.copy(alpha = 0.3f),
-                        Color.White.copy(alpha = 0.1f)
+                        Color.White.copy(alpha = 0.3f)
                     )
                 ),
                 shape = shape
@@ -142,11 +142,7 @@ fun ModernButton(
     gradient: List<Color> = listOf(FplAccent, FplAccentDark)
 ) {
     val scale by animateFloatAsState(
-        targetValue = if (enabled) 1f else 0.95f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        )
+        targetValue = if (enabled) 1f else 0.95f
     )
 
     Box(
@@ -165,11 +161,6 @@ fun ModernButton(
                     )
                 }
             )
-            .shadow(
-                elevation = if (enabled) 8.dp else 0.dp,
-                shape = MaterialTheme.shapes.medium,
-                spotColor = gradient.first().copy(alpha = 0.5f)
-            )
     ) {
         Button(
             onClick = onClick,
@@ -179,14 +170,11 @@ fun ModernButton(
                 containerColor = Color.Transparent,
                 contentColor = FplTextOnAccent
             ),
-            contentPadding = PaddingValues(vertical = 16.dp, horizontal = 24.dp),
-            elevation = ButtonDefaults.buttonElevation(0.dp)
-        ) {
+            contentPadding = PaddingValues(vertical = 16.dp, horizontal = 24.dp)) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = FplTextOnAccent,
-                    strokeWidth = 2.dp
+                    color = FplTextOnAccent
                 )
             } else {
                 if (icon != null) {

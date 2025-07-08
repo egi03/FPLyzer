@@ -225,15 +225,12 @@ fun TrendsTab(
                         onClick = {
                             when {
                                 isSelected -> {
-                                    // Always allow deselection
                                     selectedMembers = selectedMembers - member.managerName
                                 }
                                 selectedMembers.size < 5 -> {
-                                    // Allow selection if under limit
                                     selectedMembers = selectedMembers + member.managerName
                                 }
                                 else -> {
-                                    // Show message when limit reached
                                     showLimitMessage = true
                                 }
                             }
@@ -245,11 +242,9 @@ fun TrendsTab(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Chart
         if (selectedMembers.isEmpty()) {
             EmptyChartView()
         } else {
-            // Get selected manager IDs in order for consistent coloring
             val selectedManagerData = stats.managerStats.values
                 .filter { selectedMembers.contains(it.managerName) }
                 .sortedBy { it.managerId } // Sort for consistent ordering

@@ -544,7 +544,7 @@ private fun H2HRecordCard(
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = FplSurface),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isExpanded) 8.dp else 4.dp
+            0.dp
         )
     ) {
         Column(

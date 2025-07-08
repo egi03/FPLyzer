@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -257,7 +258,7 @@ private fun ChipButton(
     Card(
         onClick = action,
         modifier = Modifier
-            .width(100.dp)
+            .width(110.dp)
             .animateContentSize(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -266,7 +267,9 @@ private fun ChipButton(
         border = if (isSelected) BorderStroke(2.dp, chip.color) else null
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -295,33 +298,48 @@ private fun ChipButton(
                 )
             }
 
-            Text(
-                text = chip.displayName,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = chip.displayName,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             if (count > 0) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "$count/$totalPossible",
                         style = MaterialTheme.typography.labelSmall,
-                        color = FplTextSecondary
+                        color = FplTextSecondary,
+                        textAlign = TextAlign.Center
                     )
                     Text(
                         text = "${usagePercentage.toInt()}% used",
                         style = MaterialTheme.typography.labelSmall,
-                        color = chip.color
+                        color = chip.color,
+                        textAlign = TextAlign.Center
                     )
                 }
             } else {
                 Text(
                     text = "Not used",
                     style = MaterialTheme.typography.labelSmall,
-                    color = FplTextSecondary
+                    color = FplTextSecondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -383,7 +401,8 @@ private fun OverviewStat(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = FplSurface)
+        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        elevation = CardDefaults.cardElevation(0.dp) // ADDED: no elevation
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -533,10 +552,10 @@ private fun StatBox(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
-            .shadow(
-                elevation = 5.dp,
-                shape = RoundedCornerShape(12.dp),
-                spotColor = color.copy(alpha = 0.2f)
+            .border(
+                width = 1.dp,
+                color = color.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(12.dp)
             )
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -581,7 +600,8 @@ private fun ChipTimelineView(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(0.dp) // ADDED: no elevation
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -658,7 +678,8 @@ private fun ChipQualityDistribution(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(0.dp) // ADDED: no elevation
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -762,10 +783,7 @@ private fun ChipUsageCard(
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp,
-            pressedElevation = 8.dp
-        ),
+        elevation = CardDefaults.cardElevation(0.dp), // CHANGED: from 2.dp/8.dp to 0.dp
         border = BorderStroke(
             width = 1.dp,
             color = effectiveness.color.copy(alpha = 0.15f)
@@ -794,7 +812,6 @@ private fun ChipUsageCard(
                     )
                 }
 
-                // Manager Info
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = manager.teamName,
@@ -849,7 +866,6 @@ private fun ChipUsageCard(
                     )
                 }
 
-                // Points & Performance
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
@@ -878,7 +894,6 @@ private fun ChipUsageCard(
                         textAlign = TextAlign.End
                     )
 
-                    // Effectiveness Badge
                     Box(
                         modifier = Modifier
                             .padding(top = 4.dp)
@@ -896,7 +911,6 @@ private fun ChipUsageCard(
                 }
             }
 
-            // Additional context for specific chips
             when (chipType) {
                 ChipType.TRIPLE_CAPTAIN -> {
                     usage.captainName?.let { captainName ->

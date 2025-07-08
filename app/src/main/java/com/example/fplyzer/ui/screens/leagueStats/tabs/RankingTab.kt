@@ -88,9 +88,7 @@ private fun RankingCard(
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = FplSurface),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (isSelected) 8.dp else 4.dp
-        )
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -99,7 +97,6 @@ private fun RankingCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Rank Badge
                 Box(
                     modifier = Modifier
                         .size(40.dp)

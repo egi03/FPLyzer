@@ -142,7 +142,11 @@ fun ModernButton(
     gradient: List<Color> = listOf(FplAccent, FplAccentDark)
 ) {
     val scale by animateFloatAsState(
-        targetValue = if (enabled) 1f else 0.95f
+        targetValue = if (enabled) 1f else 0.95f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
     )
 
     Box(
@@ -170,11 +174,14 @@ fun ModernButton(
                 containerColor = Color.Transparent,
                 contentColor = FplTextOnAccent
             ),
-            contentPadding = PaddingValues(vertical = 16.dp, horizontal = 24.dp)) {
+            contentPadding = PaddingValues(vertical = 16.dp, horizontal = 24.dp),
+            elevation = ButtonDefaults.buttonElevation(0.dp)
+        ) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = FplTextOnAccent
+                    color = FplTextOnAccent,
+                    strokeWidth = 2.dp
                 )
             } else {
                 if (icon != null) {

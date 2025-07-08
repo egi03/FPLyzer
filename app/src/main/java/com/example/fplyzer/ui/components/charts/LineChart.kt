@@ -157,9 +157,11 @@ fun LineChart(
 
             // Legend
             Spacer(modifier = Modifier.height(16.dp))
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+
             ) {
                 data.entries.forEachIndexed { index, (managerId, _) ->
                     Row(

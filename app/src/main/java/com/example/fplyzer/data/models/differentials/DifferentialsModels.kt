@@ -1,21 +1,19 @@
 package com.example.fplyzer.data.models.differentials
 
-import com.google.gson.annotations.SerializedName
-
 data class DifferentialAnalysis(
     val id: String,
     val managerId: Int,
     val managerName: String,
-    val differentialPicks: List<DifferentialPick>,
+    val differentialModelPicks: List<DifferentialModelPick>,
     val missedOpportunities: List<MissedDifferential>,
     val differentialSuccessRate: Double,
     val totalDifferentialPoints: Int,
     val riskRating: RiskLevel,
-    val biggestSuccess: DifferentialPick?,
-    val biggestFailure: DifferentialPick?
+    val biggestSuccess: DifferentialModelPick?,
+    val biggestFailure: DifferentialModelPick?
 )
 
-data class DifferentialPick(
+data class DifferentialModelPick(
     val id: String,
     val player: PlayerData,
     val gameweeksPicked: List<Int>,
@@ -80,8 +78,8 @@ data class LeagueDifferentialSummary(
     val successfulDifferentials: Int,
     val failedDifferentials: Int,
     val successRate: Double,
-    val topDifferential: DifferentialPick?,
-    val worstDifferential: DifferentialPick?,
+    val topDifferential: DifferentialModelPick?,
+    val worstDifferential: DifferentialModelPick?,
     val mostConservativeManager: String?,
     val mostAggressiveManager: String?,
     val averageRiskLevel: RiskLevel

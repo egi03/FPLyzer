@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fplyzer.data.manager.FavouriteLeaguesManager
+import com.example.fplyzer.data.mock.MockDataFactory
 import com.example.fplyzer.data.models.*
 import com.example.fplyzer.data.models.differentials.DifferentialAnalysis
 import com.example.fplyzer.data.models.statistics.*
@@ -16,20 +17,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
-import com.example.fplyzer.data.models.differentials.*
-import com.example.fplyzer.data.models.whatif.*
-import com.example.fplyzer.data.models.differentials.DifferentialPick as DiffAnalysisPick
 
-import com.example.fplyzer.data.models.differentials.DifferentialOutcome
-import com.example.fplyzer.data.models.differentials.DifferentialImpact
-import com.example.fplyzer.data.models.differentials.RiskLevel
-import com.example.fplyzer.data.models.differentials.MissedDifferential
-import com.example.fplyzer.data.models.differentials.LeagueDifferentialSummary
-
-import com.example.fplyzer.data.models.whatif.WhatIfResult
-import com.example.fplyzer.data.models.whatif.ScenarioType
-import com.example.fplyzer.data.models.whatif.ScenarioImpact
-import com.example.fplyzer.data.models.whatif.WhatIfSummary
+import kotlinx.coroutines.delay
 
 
 data class LeagueStatsUiState(
@@ -49,7 +38,8 @@ data class LeagueStatsUiState(
     val whatIfScenarios: List<WhatIfScenario> = emptyList(),
     val isLoadingDifferentials: Boolean = false,
     val isLoadingWhatIf: Boolean = false,
-    val isFavourite: Boolean = false
+    val isFavourite: Boolean = false,
+    val isDemo: Boolean = false
 )
 
 class LeagueStatsViewModel(application: Application): AndroidViewModel(application) {
@@ -697,6 +687,99 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
     fun refreshWhatIfScenarios() {
         _uiState.value = _uiState.value.copy(whatIfScenarios = emptyList())
         loadWhatIfScenarios()
+    }
+
+    fun loadDemoData() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                error = null
+            )
+
+            try {
+                // Simulate network delay for realistic demo experience
+                delay(1500)
+
+                // Load mock league statistics
+                val demoStats = MockDataFactory.createMockLeagueStatistics()
+
+                _uiState.value = _uiState.value.copy(
+                    leagueStatistics = demoStats,
+                    sortedManagers = sortManagers(
+                        demoStats.managerStats.values.toList(),
+                        _uiState.value.currentSortOption
+                    ),
+                    isFavourite = false, // Demo can't be favourited
+                    isLoading = false
+                )
+
+                // Pre-load demo data for other tabs
+                loadDemoPlayerAnalytics()
+                loadDemoDifferentialAnalyses()
+                loadDemoWhatIfScenarios()
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to load demo data: ${e.message}",
+                    isLoading = false
+                )
+            }
+        }
+    }
+
+    private suspend fun loadDemoPlayerAnalytics() {
+        _uiState.value = _uiState.value.copy(isLoadingPlayers = true)
+
+        try {
+            delay(500) // Simulate some loading time
+            val demoPlayerAnalytics = MockDataFactory.createMockPlayerAnalytics()
+
+            _uiState.value = _uiState.value.copy(
+                playerAnalytics = demoPlayerAnalytics,
+                selectedGameweek = 15,
+                isLoadingPlayers = false
+            )
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                isLoadingPlayers = false
+            )
+        }
+    }
+
+    private suspend fun loadDemoDifferentialAnalyses() {
+        _uiState.value = _uiState.value.copy(isLoadingDifferentials = true)
+
+        try {
+            delay(800) // Simulate analysis time
+            val demoAnalyses = MockDataFactory.createMockDifferentialAnalyses()
+
+            _uiState.value = _uiState.value.copy(
+                differentialAnalyses = demoAnalyses,
+                isLoadingDifferentials = false
+            )
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                isLoadingDifferentials = false
+            )
+        }
+    }
+
+    private suspend fun loadDemoWhatIfScenarios() {
+        _uiState.value = _uiState.value.copy(isLoadingWhatIf = true)
+
+        try {
+            delay(600) // Simulate scenario generation time
+            val demoScenarios = MockDataFactory.createMockWhatIfScenarios()
+
+            _uiState.value = _uiState.value.copy(
+                whatIfScenarios = demoScenarios,
+                isLoadingWhatIf = false
+            )
+        } catch (e: Exception) {
+            _uiState.value = _uiState.value.copy(
+                isLoadingWhatIf = false
+            )
+        }
     }
 }
 

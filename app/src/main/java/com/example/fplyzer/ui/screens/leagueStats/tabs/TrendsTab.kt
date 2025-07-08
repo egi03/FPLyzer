@@ -213,7 +213,7 @@ fun TrendsTab(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(stats.managerStats.values.take(15).toList()) { member ->
+                items(stats.managerStats.values.toList()) { member ->
                     val isSelected = selectedMembers.contains(member.managerName)
                     val canSelect = isSelected || selectedMembers.size < 5
 

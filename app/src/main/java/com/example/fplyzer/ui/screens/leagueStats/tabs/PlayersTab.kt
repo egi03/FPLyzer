@@ -3,9 +3,7 @@ package com.example.fplyzer.ui.screens.leagueStats.tabs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fplyzer.ui.components.ModernChip
 import com.example.fplyzer.ui.components.playerAnalytics.CaptaincyCard
-import com.example.fplyzer.ui.components.playerAnalytics.DifferentialCard
 import com.example.fplyzer.ui.components.playerAnalytics.OwnershipDistributionChart
 import com.example.fplyzer.ui.components.playerAnalytics.PlayerOwnershipCard
 import com.example.fplyzer.ui.components.playerAnalytics.TemplateTeamCard
@@ -28,7 +25,6 @@ import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsUiState
 import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsViewModel
 import com.example.fplyzer.ui.theme.FplSecondary
 import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
 
 @Composable
 fun PlayersTab(
@@ -53,6 +49,9 @@ fun PlayersTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            DemoBanner()
+        }
         // Position filter
         item {
             val positions = listOf("All", "GKP", "DEF", "MID", "FWD")
@@ -105,30 +104,6 @@ fun PlayersTab(
         }
         items(playerAnalytics.captaincy.take(5)) { captaincy ->
             CaptaincyCard(captaincy)
-        }
-
-        // Differentials
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Top Differentials",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = FplTextPrimary
-                )
-                Text(
-                    text = "< 10% owned",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = FplTextSecondary
-                )
-            }
-        }
-        items(playerAnalytics.differentials.take(10)) { differential ->
-            DifferentialCard(differential)
         }
 
         // All players by ownership

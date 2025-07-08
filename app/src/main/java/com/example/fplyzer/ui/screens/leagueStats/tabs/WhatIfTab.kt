@@ -56,6 +56,9 @@ fun WhatIfTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            DemoBanner()
+        }
         // Header Section
         item {
             if (scenarioSummary != null) {

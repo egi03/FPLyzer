@@ -29,13 +29,18 @@ import com.example.fplyzer.ui.theme.*
 @Composable
 fun LeagueStatsScreen(
     leagueId: Int,
+    isDemo: Boolean = false,
     onNavigateBack: () -> Unit,
     viewModel: LeagueStatsViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
 
-    LaunchedEffect(leagueId) {
-        viewModel.loadLeagueStatistics(leagueId)
+    LaunchedEffect(leagueId, isDemo) {
+        if (isDemo) {
+            viewModel.loadDemoData()
+        } else {
+            viewModel.loadLeagueStatistics(leagueId)
+        }
     }
 
     Scaffold(
@@ -45,17 +50,18 @@ fun LeagueStatsScreen(
                 leagueId = leagueId,
                 leagueName = uiState.leagueStatistics?.leagueInfo?.name,
                 isFavourite = uiState.isFavourite,
+                isDemo = isDemo,
                 onNavigateBack = onNavigateBack,
-                onToggleFavourite = viewModel::toggleFavourite
+                onToggleFavourite = (if (!isDemo) viewModel::toggleFavourite else {}) as () -> Unit
             )
         }
     ) { paddingValues ->
         when {
             uiState.isLoading -> {
-                EnhancedLoadingScreen(paddingValues)
+                EnhancedLoadingScreen(paddingValues, isDemo)
             }
 
-            uiState.error != null -> {
+            uiState.error != null && !isDemo -> {
                 EnhancedErrorScreen(
                     error = uiState.error!!,
                     paddingValues = paddingValues,
@@ -68,11 +74,16 @@ fun LeagueStatsScreen(
                 EnhancedLeagueStatsContent(
                     uiState = uiState,
                     viewModel = viewModel,
-                    paddingValues = paddingValues
+                    paddingValues = paddingValues,
+                    isDemo = isDemo
                 )
             }
         }
     }
+}
+
+private fun LeagueStatsViewModel.loadDemoData() {
+    TODO("Not yet implemented")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,6 +92,7 @@ private fun EnhancedTopBar(
     leagueId: Int,
     leagueName: String?,
     isFavourite: Boolean,
+    isDemo: Boolean,
     onNavigateBack: () -> Unit,
     onToggleFavourite: () -> Unit
 ) {
@@ -96,13 +108,17 @@ private fun EnhancedTopBar(
                         .clip(RoundedCornerShape(12.dp))
                         .background(
                             brush = Brush.linearGradient(
-                                colors = listOf(FplSecondary, FplSecondaryDark)
+                                colors = if (isDemo) {
+                                    listOf(FplSecondary, FplSecondaryDark)
+                                } else {
+                                    listOf(FplPrimary, FplPrimaryDark)
+                                }
                             )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Default.Analytics,
+                        if (isDemo) Icons.Default.Preview else Icons.Default.Analytics,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(24.dp)
@@ -110,14 +126,33 @@ private fun EnhancedTopBar(
                 }
 
                 Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = leagueName ?: if (isDemo) "Demo League" else "League Analytics",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = FplTextPrimary
+                        )
+                        if (isDemo) {
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = FplSecondary.copy(alpha = 0.2f)
+                            ) {
+                                Text(
+                                    text = "DEMO",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = FplSecondary,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
                     Text(
-                        text = leagueName ?: "League Analytics",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = FplTextPrimary
-                    )
-                    Text(
-                        text = "ID: $leagueId",
+                        text = if (isDemo) "Sample Data" else "ID: $leagueId",
                         style = MaterialTheme.typography.bodySmall,
                         color = FplTextSecondary
                     )
@@ -141,22 +176,24 @@ private fun EnhancedTopBar(
             }
         },
         actions = {
-            IconButton(
-                onClick = onToggleFavourite,
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isFavourite) FplYellow.copy(alpha = 0.2f)
-                        else FplTextSecondary.copy(alpha = 0.1f)
+            if (!isDemo) {
+                IconButton(
+                    onClick = onToggleFavourite,
+                    modifier = Modifier
+                        .padding(end = 8.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isFavourite) FplYellow.copy(alpha = 0.2f)
+                            else FplTextSecondary.copy(alpha = 0.1f)
+                        )
+                ) {
+                    Icon(
+                        if (isFavourite) Icons.Default.Star else Icons.Default.StarBorder,
+                        contentDescription = if (isFavourite) "Remove from favourites" else "Add to favourites",
+                        tint = if (isFavourite) FplYellow else FplTextSecondary
                     )
-            ) {
-                Icon(
-                    if (isFavourite) Icons.Default.Star else Icons.Default.StarBorder,
-                    contentDescription = if (isFavourite) "Remove from favourites" else "Add to favourites",
-                    tint = if (isFavourite) FplYellow else FplTextSecondary
-                )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -174,7 +211,8 @@ private fun EnhancedTopBar(
 private fun EnhancedLeagueStatsContent(
     uiState: LeagueStatsUiState,
     viewModel: LeagueStatsViewModel,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    isDemo: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -184,7 +222,8 @@ private fun EnhancedLeagueStatsContent(
         // Enhanced Tab Bar matching iOS
         EnhancedTabBar(
             selectedTab = uiState.selectedTab,
-            onTabSelected = viewModel::setSelectedTab
+            onTabSelected = viewModel::setSelectedTab,
+            isDemo = isDemo
         )
 
         // Tab content with animations
@@ -225,7 +264,8 @@ private fun EnhancedLeagueStatsContent(
 @Composable
 private fun EnhancedTabBar(
     selectedTab: Int,
-    onTabSelected: (Int) -> Unit
+    onTabSelected: (Int) -> Unit,
+    isDemo: Boolean
 ) {
     val tabs = listOf(
         TabItem("Rankings", Icons.Default.Leaderboard),
@@ -249,7 +289,11 @@ private fun EnhancedTabBar(
                     .height(3.dp)
                     .background(
                         brush = Brush.horizontalGradient(
-                            colors = listOf(FplSecondary, FplSecondaryDark)
+                            colors = if (isDemo) {
+                                listOf(FplSecondary, FplSecondaryDark)
+                            } else {
+                                listOf(FplPrimary, FplPrimaryDark)
+                            }
                         ),
                         shape = RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp)
                     )
@@ -270,14 +314,22 @@ private fun EnhancedTabBar(
                     Icon(
                         imageVector = tab.icon,
                         contentDescription = null,
-                        tint = if (selectedTab == index) FplSecondary else FplTextSecondary,
+                        tint = if (selectedTab == index) {
+                            if (isDemo) FplSecondary else FplPrimary
+                        } else {
+                            FplTextSecondary
+                        },
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
                         text = tab.title,
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                        color = if (selectedTab == index) FplSecondary else FplTextSecondary
+                        color = if (selectedTab == index) {
+                            if (isDemo) FplSecondary else FplPrimary
+                        } else {
+                            FplTextSecondary
+                        }
                     )
                 }
             }
@@ -286,7 +338,7 @@ private fun EnhancedTabBar(
 }
 
 @Composable
-private fun EnhancedLoadingScreen(paddingValues: PaddingValues) {
+private fun EnhancedLoadingScreen(paddingValues: PaddingValues, isDemo: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -320,7 +372,7 @@ private fun EnhancedLoadingScreen(paddingValues: PaddingValues) {
             ) {
                 CircularProgressIndicator(
                     modifier = Modifier.fillMaxSize(),
-                    color = FplSecondary,
+                    color = if (isDemo) FplSecondary else FplPrimary,
                     strokeWidth = 8.dp
                 )
 
@@ -331,13 +383,17 @@ private fun EnhancedLoadingScreen(paddingValues: PaddingValues) {
                         .clip(CircleShape)
                         .background(
                             brush = Brush.radialGradient(
-                                colors = listOf(FplSecondary, FplSecondaryDark)
+                                colors = if (isDemo) {
+                                    listOf(FplSecondary, FplSecondaryDark)
+                                } else {
+                                    listOf(FplPrimary, FplPrimaryDark)
+                                }
                             )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Default.Analytics,
+                        if (isDemo) Icons.Default.Preview else Icons.Default.Analytics,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(32.dp)
@@ -349,14 +405,14 @@ private fun EnhancedLoadingScreen(paddingValues: PaddingValues) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Analyzing League Data",
+                    text = if (isDemo) "Loading Demo Data" else "Analyzing League Data",
                     style = MaterialTheme.typography.titleLarge,
                     color = FplTextPrimary,
                     fontWeight = FontWeight.Bold
                 )
 
                 Text(
-                    text = "This may take a moment...",
+                    text = if (isDemo) "Preparing sample analytics..." else "This may take a moment...",
                     style = MaterialTheme.typography.bodyMedium,
                     color = FplTextSecondary
                 )

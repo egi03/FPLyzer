@@ -36,6 +36,7 @@ import com.example.fplyzer.ui.theme.*
 @Composable
 fun HomeScreen(
     onNavigateToLeagueStats: (Int) -> Unit,
+    onNavigateToDemo: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
@@ -84,7 +85,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-
             AnimatedVisibility(
                 visible = true,
                 enter = fadeIn(animationSpec = tween(1000)) +
@@ -104,6 +104,64 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(32.dp))
+
+            // Demo Button
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(animationSpec = tween(1100, delayMillis = 200)) +
+                        slideInVertically(initialOffsetY = { 100 })
+            ) {
+                GlassmorphicCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Preview,
+                                contentDescription = null,
+                                tint = FplSecondary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                text = "Try Demo",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = FplSecondary
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Experience all features with sample data",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = FplTextSecondary,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        ModernButton(
+                            onClick = onNavigateToDemo,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp),
+                            text = "View Demo",
+                            icon = Icons.Default.PlayArrow,
+                            gradient = listOf(FplSecondary, FplSecondaryDark)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
 
             AnimatedVisibility(
                 visible = true,

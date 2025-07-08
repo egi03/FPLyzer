@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,7 +41,7 @@ fun DifferentialsTab(
             DifferentialSortType.SUCCESS_RATE -> uiState.differentialAnalyses.sortedByDescending { it.differentialSuccessRate }
             DifferentialSortType.TOTAL_POINTS -> uiState.differentialAnalyses.sortedByDescending { it.totalDifferentialPoints }
             DifferentialSortType.RISK_LEVEL -> uiState.differentialAnalyses.sortedByDescending { getRiskValue(it.riskRating) }
-            DifferentialSortType.DIFFERENTIAL_COUNT -> uiState.differentialAnalyses.sortedByDescending { it.differentialPicks.size }
+            DifferentialSortType.DIFFERENTIAL_COUNT -> uiState.differentialAnalyses.sortedByDescending { it.differentialModelPicks.size }
         }
     }
 
@@ -58,6 +57,9 @@ fun DifferentialsTab(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item {
+            DemoBanner()
+        }
         // Header Section
         item {
             if (leagueSummary != null) {
@@ -151,6 +153,7 @@ private fun DifferentialHeaderCard(
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -376,7 +379,7 @@ private fun DifferentialAnalysisCard(
                         RiskLevelBadge(level = analysis.riskRating)
 
                         Text(
-                            text = "${analysis.differentialPicks.size} differentials",
+                            text = "${analysis.differentialModelPicks.size} differentials",
                             style = MaterialTheme.typography.bodySmall,
                             color = FplTextSecondary
                         )
@@ -444,9 +447,9 @@ private fun DifferentialAnalysisCard(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         // Differential Picks
-                        if (analysis.differentialPicks.isNotEmpty()) {
+                        if (analysis.differentialModelPicks.isNotEmpty()) {
                             DifferentialPicksSection(
-                                picks = analysis.differentialPicks
+                                picks = analysis.differentialModelPicks
                                     .sortedByDescending { it.differentialScore }
                                     .take(5)
                             )
@@ -480,7 +483,7 @@ private fun RiskLevelBadge(level: RiskLevel) {
 }
 
 @Composable
-private fun DifferentialPicksSection(picks: List<DifferentialPick>) {
+private fun DifferentialPicksSection(picks: List<DifferentialModelPick>) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -512,7 +515,7 @@ private fun DifferentialPicksSection(picks: List<DifferentialPick>) {
 
 @Composable
 private fun DifferentialPickRow(
-    pick: DifferentialPick,
+    pick: DifferentialModelPick,
     rank: Int? = null
 ) {
     Row(
@@ -826,7 +829,7 @@ private fun getOutcomeColor(outcome: DifferentialOutcome): Color {
 }
 
 private fun calculateLeagueSummary(analyses: List<DifferentialAnalysis>): LeagueDifferentialSummary {
-    val allDifferentials = analyses.flatMap { it.differentialPicks }
+    val allDifferentials = analyses.flatMap { it.differentialModelPicks }
     val totalDifferentials = allDifferentials.size
 
     val successfulPicks = allDifferentials.filter { pick ->
@@ -839,8 +842,8 @@ private fun calculateLeagueSummary(analyses: List<DifferentialAnalysis>): League
     val topDifferential = allDifferentials.maxByOrNull { it.differentialScore }
     val worstDifferential = allDifferentials.minByOrNull { it.differentialScore }
 
-    val mostConservative = analyses.minByOrNull { it.differentialPicks.size }?.managerName
-    val mostAggressive = analyses.maxByOrNull { it.differentialPicks.size }?.managerName
+    val mostConservative = analyses.minByOrNull { it.differentialModelPicks.size }?.managerName
+    val mostAggressive = analyses.maxByOrNull { it.differentialModelPicks.size }?.managerName
 
     return LeagueDifferentialSummary(
         totalDifferentials = totalDifferentials,

@@ -1,4 +1,3 @@
-// Update MainActivity to use enhanced navigation
 package com.example.fplyzer
 
 import android.os.Bundle

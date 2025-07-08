@@ -58,6 +58,9 @@ fun FplNavigation() {
                 onNavigateToLeagueStats = { leagueId ->
                     navController.navigate("league_stats/$leagueId")
                 },
+                onNavigateToDemo = {
+                    navController.navigate("demo_league")
+                },
                 viewModel = viewModel(factory = viewModelFactory)
             )
         }
@@ -71,6 +74,18 @@ fun FplNavigation() {
             val leagueId = backStackEntry.arguments?.getInt("leagueId") ?: 0
             LeagueStatsScreen(
                 leagueId = leagueId,
+                isDemo = false,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                viewModel = viewModel(factory = viewModelFactory)
+            )
+        }
+
+        composable("demo_league") {
+            LeagueStatsScreen(
+                leagueId = 999999, // Demo league ID
+                isDemo = true,
                 onNavigateBack = {
                     navController.popBackStack()
                 },

@@ -10,7 +10,7 @@ import com.example.fplyzer.data.models.ManagerTeam
 import com.example.fplyzer.data.models.differentials.DifferentialAnalysis
 import com.example.fplyzer.data.models.differentials.DifferentialImpact
 import com.example.fplyzer.data.models.differentials.DifferentialOutcome
-import com.example.fplyzer.data.models.differentials.DifferentialPick
+import com.example.fplyzer.data.models.differentials.DifferentialModelPick
 import com.example.fplyzer.data.models.differentials.PlayerData
 import com.example.fplyzer.data.models.differentials.RiskLevel
 import com.example.fplyzer.data.models.whatif.ScenarioImpact
@@ -174,7 +174,7 @@ class FplRepository {
                     val manager = managers.find { it.entry == managerId }!!
 
                     // Find actual differential picks
-                    val differentialPicks = mutableListOf<DifferentialPick>()
+                    val differentialModelPicks = mutableListOf<DifferentialModelPick>()
 
                     teams.forEach { (gameweek, team) ->
                         team.picks.forEach { pick ->
@@ -204,18 +204,28 @@ class FplRepository {
                                     }
 
                                     // Check if we already have this player
-                                    val existingPickIndex = differentialPicks.indexOfFirst { it.player.id == player.id }
+                                    val existingPickIndex = differentialModelPicks.indexOfFirst { it.player.id == player.id }
                                     if (existingPickIndex != -1) {
                                         // Update existing pick
-                                        val existingPick = differentialPicks[existingPickIndex]
-                                        differentialPicks[existingPickIndex] = existingPick.copy(
-                                            gameweeksPicked = existingPick.gameweeksPicked + gameweek,
-                                            pointsScored = existingPick.pointsScored + actualPoints
+                                        val existingPick = differentialModelPicks[existingPickIndex]
+                                        val updatedPointsScored = existingPick.pointsScored + actualPoints
+                                        val updatedGameweeks = existingPick.gameweeksPicked + gameweek
+
+                                        // Recalculate differential score with updated points
+                                        val updatedDifferentialScore = updatedPointsScored * (1 - leagueOwnershipPct / 100)
+
+                                        differentialModelPicks[existingPickIndex] = existingPick.copy(
+                                            gameweeksPicked = updatedGameweeks,
+                                            pointsScored = updatedPointsScored,
+                                            differentialScore = updatedDifferentialScore // ✅ Now properly updated!
                                         )
+
+                                        // Debug logging (remove in production)
+                                        println("Updated differential: ${player.webName} - Points: $updatedPointsScored, Score: $updatedDifferentialScore")
                                     } else {
                                         // Add new differential pick
-                                        differentialPicks.add(
-                                            DifferentialPick(
+                                        differentialModelPicks.add(
+                                            DifferentialModelPick(
                                                 id = "diff_${managerId}_${player.id}",
                                                 player = PlayerData(
                                                     id = player.id,
@@ -245,21 +255,25 @@ class FplRepository {
                                                 impact = if (actualPoints >= 10) DifferentialImpact.HIGH else DifferentialImpact.MEDIUM
                                             )
                                         )
+
+                                        // Debug logging (remove in production)
+                                        println("New differential: ${player.webName} - Points: $actualPoints, Score: ${actualPoints * (1 - leagueOwnershipPct / 100)}")
                                     }
+
                                 }
                             }
                         }
                     }
 
-                    val totalDifferentialPoints = differentialPicks.sumOf { it.pointsScored }
-                    val successfulPicks = differentialPicks.count {
+                    val totalDifferentialPoints = differentialModelPicks.sumOf { it.pointsScored }
+                    val successfulPicks = differentialModelPicks.count {
                         it.outcome == DifferentialOutcome.MASTER_STROKE || it.outcome == DifferentialOutcome.GOOD_PICK
                     }
-                    val successRate = if (differentialPicks.isNotEmpty()) {
-                        (successfulPicks.toDouble() / differentialPicks.size) * 100
+                    val successRate = if (differentialModelPicks.isNotEmpty()) {
+                        (successfulPicks.toDouble() / differentialModelPicks.size) * 100
                     } else 0.0
 
-                    val riskRating = when (differentialPicks.size) {
+                    val riskRating = when (differentialModelPicks.size) {
                         0, 1 -> RiskLevel.CONSERVATIVE
                         2, 3 -> RiskLevel.BALANCED
                         4, 5 -> RiskLevel.AGGRESSIVE
@@ -270,15 +284,15 @@ class FplRepository {
                         id = "analysis_$managerId",
                         managerId = managerId,
                         managerName = manager.playerName,
-                        differentialPicks = differentialPicks,
+                        differentialModelPicks = differentialModelPicks,
                         missedOpportunities = emptyList(),
                         differentialSuccessRate = successRate,
                         totalDifferentialPoints = totalDifferentialPoints,
                         riskRating = riskRating,
-                        biggestSuccess = differentialPicks.maxByOrNull { it.pointsScored },
-                        biggestFailure = differentialPicks.minByOrNull { it.pointsScored }
+                        biggestSuccess = differentialModelPicks.maxByOrNull { it.pointsScored },
+                        biggestFailure = differentialModelPicks.minByOrNull { it.pointsScored }
                     )
-                }.filter { it.differentialPicks.isNotEmpty() }
+                }.filter { it.differentialModelPicks.isNotEmpty() }
 
                 Result.success(analyses)
             } catch (e: Exception) {

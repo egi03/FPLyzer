@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,12 +55,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -70,20 +75,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fplyzer.data.models.FavouriteLeague
 import com.example.fplyzer.ui.components.GlassmorphicCard
 import com.example.fplyzer.ui.components.ModernButton
-import com.example.fplyzer.ui.theme.FplAccent
-import com.example.fplyzer.ui.theme.FplAccentDark
-import com.example.fplyzer.ui.theme.FplDivider
-import com.example.fplyzer.ui.theme.FplError
-import com.example.fplyzer.ui.theme.FplGradientEnd
-import com.example.fplyzer.ui.theme.FplGradientMiddle
-import com.example.fplyzer.ui.theme.FplGradientStart
-import com.example.fplyzer.ui.theme.FplPrimary
-import com.example.fplyzer.ui.theme.FplRed
-import com.example.fplyzer.ui.theme.FplSecondary
-import com.example.fplyzer.ui.theme.FplSecondaryDark
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
-import com.example.fplyzer.ui.theme.FplYellow
+import com.example.fplyzer.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +86,10 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState
     val keyboardController = LocalSoftwareKeyboardController.current
+    // Use the ThemeManager from the composition local instead of creating a new one
+    val themeManager = LocalThemeManager.current
+
+    var showingThemeSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadFavouriteLeagues()
@@ -102,21 +98,14 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        FplGradientStart,
-                        FplGradientMiddle,
-                        FplGradientEnd
-                    ),
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
             .imePadding()
     ) {
-        AnimatedBackgroundShapes()
+        // Animated background only for light theme
+        if (!themeManager.isDarkMode) {
+            AnimatedBackgroundShapes()
+        }
 
         LazyColumn(
             modifier = Modifier
@@ -125,9 +114,39 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Logo Section
+            // Header with Settings Button
             item {
-                Spacer(modifier = Modifier.height(16.dp)) // Extra padding to avoid notch
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Settings button row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Settings Button (Top Left)
+                    SettingsButton(
+                        onClick = {
+                            println("DEBUG: Settings button clicked, current theme: ${themeManager.currentMode}")
+                            showingThemeSheet = true
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Debug info - remove this later
+                    Text(
+                        text = "Theme: ${themeManager.currentMode.displayName}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Logo Section
                 AnimatedVisibility(
                     visible = true,
                     enter = fadeIn(animationSpec = tween(800))
@@ -135,10 +154,8 @@ fun HomeScreen(
                     Icon(
                         Icons.Default.Analytics,
                         contentDescription = "FPL Analytics",
-                        modifier = Modifier
-                            .size(80.dp)
-                            .padding(top = 16.dp), // Additional top padding
-                        tint = Color.White
+                        modifier = Modifier.size(80.dp),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -152,7 +169,7 @@ fun HomeScreen(
                     Text(
                         text = "FPL.stats",
                         style = MaterialTheme.typography.headlineLarge,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Black,
                         textAlign = TextAlign.Center
                     )
@@ -166,11 +183,15 @@ fun HomeScreen(
                     enter = fadeIn(animationSpec = tween(1100, delayMillis = 200)) +
                             slideInVertically(initialOffsetY = { 100 })
                 ) {
-                    GlassmorphicCard(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        shape = MaterialTheme.shapes.extraLarge
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(20.dp),
@@ -183,14 +204,14 @@ fun HomeScreen(
                                 Icon(
                                     Icons.Default.Preview,
                                     contentDescription = null,
-                                    tint = FplSecondary,
+                                    tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Text(
                                     text = "Try Demo",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = FplSecondary
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
 
@@ -199,7 +220,7 @@ fun HomeScreen(
                             Text(
                                 text = "Experience all features with sample data",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = FplTextSecondary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
 
@@ -212,7 +233,10 @@ fun HomeScreen(
                                     .height(56.dp),
                                 text = "View Demo",
                                 icon = Icons.Default.PlayArrow,
-                                gradient = listOf(FplSecondary, FplSecondaryDark)
+                                gradient = listOf(
+                                    MaterialTheme.colorScheme.secondary,
+                                    MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)
+                                )
                             )
                         }
                     }
@@ -226,11 +250,15 @@ fun HomeScreen(
                     enter = fadeIn(animationSpec = tween(1200, delayMillis = 300)) +
                             slideInVertically(initialOffsetY = { 100 })
                 ) {
-                    GlassmorphicCard(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        shape = MaterialTheme.shapes.extraLarge
+                        shape = MaterialTheme.shapes.extraLarge,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                     ) {
                         Column(
                             modifier = Modifier.padding(20.dp),
@@ -243,14 +271,14 @@ fun HomeScreen(
                                 Icon(
                                     Icons.Default.Analytics,
                                     contentDescription = null,
-                                    tint = FplPrimary,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Text(
                                     text = "Enter League ID",
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
-                                    color = FplPrimary
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
 
@@ -259,16 +287,19 @@ fun HomeScreen(
                             Text(
                                 text = "Find your league ID in the FPL app or website",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = FplTextSecondary,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            TextField(
+                            OutlinedTextField(
                                 value = uiState.leagueIdInput,
                                 onValueChange = viewModel::updateLeagueId,
-                                placeholder = "e.g. 314159",
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("League ID", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                placeholder = { Text("e.g. 314159", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                                singleLine = true,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
                                     imeAction = ImeAction.Search
@@ -280,7 +311,23 @@ fun HomeScreen(
                                             onNavigateToLeagueStats(uiState.leagueIdInput.toInt())
                                         }
                                     }
-                                )
+                                ),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                                    cursorColor = MaterialTheme.colorScheme.primary,
+                                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                shape = RoundedCornerShape(16.dp),
+                                trailingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = "Search",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -299,7 +346,10 @@ fun HomeScreen(
                                 isLoading = uiState.isLoading,
                                 text = "Analyze League",
                                 icon = Icons.Default.Analytics,
-                                gradient = listOf(FplAccent, FplAccentDark)
+                                gradient = listOf(
+                                    MaterialTheme.colorScheme.tertiary,
+                                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
+                                )
                             )
                         }
                     }
@@ -333,7 +383,7 @@ fun HomeScreen(
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = FplError.copy(alpha = 0.1f)
+                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.1f)
                         ),
                         shape = MaterialTheme.shapes.medium
                     ) {
@@ -345,12 +395,12 @@ fun HomeScreen(
                             Icon(
                                 Icons.Default.Error,
                                 contentDescription = null,
-                                tint = FplError,
+                                tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(24.dp)
                             )
                             Text(
                                 text = uiState.error ?: "",
-                                color = FplError,
+                                color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(1f)
                             )
@@ -364,18 +414,33 @@ fun HomeScreen(
             }
         }
     }
+
+    // Theme Selection Sheet
+    if (showingThemeSheet) {
+        ThemeSelectionSheet(
+            onDismiss = {
+                println("DEBUG: Theme sheet dismissed, current theme: ${themeManager.currentMode}")
+                showingThemeSheet = false
+            },
+            themeManager = themeManager // Pass the same instance
+        )
+    }
 }
 
-// Rest of the composables (FavouriteLeaguesSection, FavouriteLeagueCard, AnimatedBackgroundShapes, TextField) remain unchanged
+// Rest of the composables with theme-aware colors...
 @Composable
 private fun FavouriteLeaguesSection(
     favouriteLeagues: List<FavouriteLeague>,
     onLeagueClick: (Int) -> Unit,
     onRemoveFavourite: (Int) -> Unit
 ) {
-    GlassmorphicCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -394,7 +459,7 @@ private fun FavouriteLeaguesSection(
                     text = "Favourite Leagues",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = FplPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -427,7 +492,9 @@ private fun FavouriteLeagueCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(
@@ -439,7 +506,7 @@ private fun FavouriteLeagueCard(
                     text = league.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = FplTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(
@@ -453,13 +520,13 @@ private fun FavouriteLeagueCard(
                         Icon(
                             Icons.Default.Group,
                             contentDescription = null,
-                            tint = FplTextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = "${league.totalManagers} managers",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -470,13 +537,13 @@ private fun FavouriteLeagueCard(
                         Icon(
                             Icons.Default.BarChart,
                             contentDescription = null,
-                            tint = FplTextSecondary,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(16.dp)
                         )
                         Text(
                             text = "${String.format("%.1f", league.averagePoints)} avg",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -487,12 +554,12 @@ private fun FavouriteLeagueCard(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(FplRed.copy(alpha = 0.1f))
+                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f))
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = "Remove favourite",
-                    tint = FplRed,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -523,7 +590,7 @@ private fun AnimatedBackgroundShapes() {
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            FplAccent.copy(alpha = 0.1f),
+                            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f),
                             Color.Transparent
                         )
                     )
@@ -539,48 +606,11 @@ private fun AnimatedBackgroundShapes() {
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
-                            FplSecondary.copy(alpha = 0.1f),
+                            MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f),
                             Color.Transparent
                         )
                     )
                 )
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    keyboardOptions: KeyboardOptions,
-    keyboardActions: KeyboardActions
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text("League ID") },
-        placeholder = { Text(placeholder) },
-        singleLine = true,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = FplAccent,
-            unfocusedBorderColor = FplDivider,
-            focusedLabelColor = FplAccent,
-            cursorColor = FplAccent,
-            focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
-        ),
-        shape = RoundedCornerShape(16.dp),
-        trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search",
-                tint = FplAccent
-            )
-        }
-    )
 }

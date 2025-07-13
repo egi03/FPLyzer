@@ -1,21 +1,27 @@
 package com.example.fplyzer.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 private val FplLightColorScheme = lightColorScheme(
     primary = FplPrimary,
-    onPrimary = FplTextOnPrimary,
+    onPrimary = Color.White,
     primaryContainer = FplPrimaryLight,
-    onPrimaryContainer = FplTextOnPrimary,
+    onPrimaryContainer = Color.White,
     secondary = FplSecondary,
-    onSecondary = FplTextOnPrimary,
+    onSecondary = Color.White,
     secondaryContainer = FplSecondaryLight,
     onSecondaryContainer = FplPrimary,
     tertiary = FplAccent,
@@ -24,7 +30,7 @@ private val FplLightColorScheme = lightColorScheme(
     onTertiaryContainer = FplPrimary,
     background = FplBackground,
     onBackground = FplTextPrimary,
-    surface = FplSurface,
+    surface = Color.White,
     onSurface = FplTextPrimary,
     surfaceVariant = FplSurfaceVariant,
     onSurfaceVariant = FplTextSecondary,
@@ -36,28 +42,28 @@ private val FplLightColorScheme = lightColorScheme(
 )
 
 private val FplDarkColorScheme = darkColorScheme(
-    primary = FplPrimaryLight,
-    onPrimary = FplTextOnPrimary,
+    primary = FplAccent,
+    onPrimary = Color.Black,
     primaryContainer = FplPrimary,
     onPrimaryContainer = FplAccent,
     secondary = FplSecondaryLight,
-    onSecondary = FplPrimaryDark,
+    onSecondary = Color.Black,
     secondaryContainer = FplSecondary,
     onSecondaryContainer = FplAccent,
-    tertiary = FplAccent,
-    onTertiary = FplPrimaryDark,
+    tertiary = FplAccentLight,
+    onTertiary = Color.Black,
     tertiaryContainer = FplAccentDark,
     onTertiaryContainer = FplAccentLight,
-    background = FplBackgroundDark,
-    onBackground = FplTextOnPrimary,
-    surface = FplPrimaryDark,
-    onSurface = FplTextOnPrimary,
-    surfaceVariant = FplPrimary,
-    onSurfaceVariant = FplTextOnPrimary.copy(alpha = 0.8f),
+    background = Color(0xFF121212),
+    onBackground = Color.White,
+    surface = Color(0xFF1E1E1E),
+    onSurface = Color.White,
+    surfaceVariant = Color(0xFF2A2A2A),
+    onSurfaceVariant = Color.White.copy(alpha = 0.8f),
     error = FplError,
     onError = Color.White,
-    outline = FplGlassDark,
-    outlineVariant = FplGlassDark.copy(alpha = 0.5f),
+    outline = Color.White.copy(alpha = 0.2f),
+    outlineVariant = Color.White.copy(alpha = 0.1f),
     scrim = FplOverlay
 )
 
@@ -69,17 +75,33 @@ val ModernShapes = Shapes(
     extraLarge = RoundedCornerShape(32.dp)
 )
 
+// Composition Local for ThemeManager
+val LocalThemeManager = compositionLocalOf<ThemeManager> {
+    error("ThemeManager not provided")
+}
+
 @Composable
 fun FPLyzerTheme(
-    darkTheme: Boolean = false,
+    themeManager: ThemeManager? = null,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) FplDarkColorScheme else FplLightColorScheme
+    val context = LocalContext.current
+    val manager = themeManager ?: ThemeManagerHolder.getInstance(context)
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        shapes = ModernShapes,
-        content = content
-    )
+    val isSystemInDarkTheme = isSystemInDarkTheme()
+
+    LaunchedEffect(manager.currentMode, isSystemInDarkTheme) {
+        manager.updateTheme(isSystemInDarkTheme)
+    }
+
+    val colorScheme = if (manager.isDarkMode) FplDarkColorScheme else FplLightColorScheme
+
+    CompositionLocalProvider(LocalThemeManager provides manager) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            shapes = ModernShapes,
+            content = content
+        )
+    }
 }

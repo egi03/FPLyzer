@@ -29,7 +29,7 @@ object MockDataFactory {
     private fun createMockLeague(): League {
         return League(
             id = 999999,
-            name = "FPL Champions League",
+            name = "Demo League",
             created = "2024-07-15T12:00:00Z",
             closed = false,
             maxEntries = null,

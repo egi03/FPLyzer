@@ -88,7 +88,7 @@ private fun RankingCard(
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
-        elevation = CardDefaults.cardElevation(2.dp) // Added elevation
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

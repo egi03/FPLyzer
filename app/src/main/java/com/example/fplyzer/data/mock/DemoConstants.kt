@@ -2,7 +2,7 @@ package com.example.fplyzer.data.mock
 
 object DemoConstants {
     const val DEMO_LEAGUE_ID = 999999
-    const val DEMO_LEAGUE_NAME = "FPL Champions League"
+    const val DEMO_LEAGUE_NAME = "FPL Sample League"
     const val DEMO_CURRENT_GAMEWEEK = 15
     const val DEMO_TOTAL_MANAGERS = 12
 

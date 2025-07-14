@@ -98,13 +98,11 @@ fun GradientCard(
         MaterialTheme.colorScheme.secondary
     ),
     shape: Shape = MaterialTheme.shapes.large,
-    elevation: Dp = 12.dp,
     content: @Composable () -> Unit
 ) {
     Card(
         modifier = modifier,
-        shape = shape,
-        elevation = CardDefaults.cardElevation(elevation)
+        shape = shape
     ) {
         Box(
             modifier = Modifier

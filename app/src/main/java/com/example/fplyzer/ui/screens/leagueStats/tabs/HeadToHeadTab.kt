@@ -549,7 +549,7 @@ private fun H2HRecordCard(
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
-        elevation = CardDefaults.cardElevation(2.dp) // Added slight elevation
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

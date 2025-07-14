@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fplyzer.ui.screens.home.HomeScreen
 import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsScreen
+import com.example.fplyzer.ui.screens.home.DeveloperInfoScreen
 import com.example.fplyzer.ui.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -61,6 +62,9 @@ fun FplNavigation() {
                 onNavigateToDemo = {
                     navController.navigate("demo_league")
                 },
+                onNavigateToDeveloperInfo = {
+                    navController.navigate("developer_info")
+                },
                 viewModel = viewModel(factory = viewModelFactory)
             )
         }
@@ -90,6 +94,14 @@ fun FplNavigation() {
                     navController.popBackStack()
                 },
                 viewModel = viewModel(factory = viewModelFactory)
+            )
+        }
+
+        composable("developer_info") {
+            DeveloperInfoScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
             )
         }
     }

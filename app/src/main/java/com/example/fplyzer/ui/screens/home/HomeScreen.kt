@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Search
@@ -82,6 +83,7 @@ import com.example.fplyzer.ui.theme.*
 fun HomeScreen(
     onNavigateToLeagueStats: (Int) -> Unit,
     onNavigateToDemo: () -> Unit = {},
+    onNavigateToDeveloperInfo: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState
@@ -114,11 +116,11 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header with Settings Button
+            // Header with Developer Info and Settings Buttons
             item {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Settings button row
+                // Button row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -126,53 +128,62 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Settings Button (Top Left)
+                    // Developer Info Button (Top Left)
+                    DeveloperInfoButton(
+                        onClick = onNavigateToDeveloperInfo
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    // Settings/Theme Button (Top Right)
                     SettingsButton(
                         onClick = {
                             println("DEBUG: Settings button clicked, current theme: ${themeManager.currentMode}")
                             showingThemeSheet = true
                         }
                     )
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    // Debug info - remove this later
-                    Text(
-                        text = "Theme: ${themeManager.currentMode.displayName}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Logo Section
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(animationSpec = tween(800))
+                // Logo and Title Section - Explicitly Centered
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 0.dp), // Remove any additional padding
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Analytics,
-                        contentDescription = "FPL Analytics",
-                        modifier = Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(800))
+                        ) {
+                            Icon(
+                                Icons.Default.Analytics,
+                                contentDescription = "FPL Analytics",
+                                modifier = Modifier.size(80.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(animationSpec = tween(1000)) +
-                            slideInVertically(initialOffsetY = { -50 })
-                ) {
-                    Text(
-                        text = "FPL.stats",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Black,
-                        textAlign = TextAlign.Center
-                    )
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(animationSpec = tween(1000)) +
+                                    slideInVertically(initialOffsetY = { -50 })
+                        ) {
+                            Text(
+                                text = "FPL.stats",
+                                style = MaterialTheme.typography.headlineLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Black,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
                 }
             }
 
@@ -423,6 +434,31 @@ fun HomeScreen(
                 showingThemeSheet = false
             },
             themeManager = themeManager // Pass the same instance
+        )
+    }
+}
+
+// Developer Info Button
+@Composable
+fun DeveloperInfoButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .background(
+                MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                CircleShape
+            )
+    ) {
+        Icon(
+            imageVector = Icons.Default.Info,
+            contentDescription = "Developer Info",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
         )
     }
 }

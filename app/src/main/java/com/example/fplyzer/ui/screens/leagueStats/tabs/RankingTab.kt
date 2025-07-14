@@ -87,8 +87,8 @@ private fun RankingCard(
             .fillMaxWidth()
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
-        elevation = CardDefaults.cardElevation(0.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
+        elevation = CardDefaults.cardElevation(2.dp) // Added elevation
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -102,7 +102,7 @@ private fun RankingCard(
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(
-                            if (rank <= 3) rankColor else FplChipBackground
+                            if (rank <= 3) rankColor else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) // Theme-aware
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -110,7 +110,7 @@ private fun RankingCard(
                         text = rank.toString(),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (rank <= 3) Color.White else FplChipText
+                        color = if (rank <= 3) Color.White else MaterialTheme.colorScheme.primary // Theme-aware
                     )
                 }
 
@@ -121,12 +121,13 @@ private fun RankingCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
                     )
                     Text(
                         text = statistics.managerName,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
 
                     getDescription(statistics, sortType)?.let { description ->
@@ -147,12 +148,12 @@ private fun RankingCard(
                         text = getStatValue(statistics, sortType),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = FplTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
                     )
                     Text(
                         text = sortType.unit,
                         style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
                 }
             }
@@ -162,7 +163,7 @@ private fun RankingCard(
                 Column(
                     modifier = Modifier.padding(top = 12.dp)
                 ) {
-                    Divider(color = FplDivider)
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant) // Theme-aware
                     Spacer(modifier = Modifier.height(8.dp))
 
                     if (sortType == RankingSortType.CONSISTENCY) {
@@ -200,7 +201,8 @@ private fun ConsistencyDetails(statistics: ManagerStatistics) {
             Text(
                 text = "Consistency Analysis",
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
 
             Text(
@@ -215,7 +217,7 @@ private fun ConsistencyDetails(statistics: ManagerStatistics) {
         Text(
             text = "Standard deviation measures how much your scores vary from your ${String.format("%.1f", statistics.averagePoints)} average.",
             style = MaterialTheme.typography.bodySmall,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -293,7 +295,7 @@ private fun StatisticsBreakdown(statistics: ManagerStatistics) {
 private fun StatItem(
     label: String,
     value: String,
-    color: Color = FplTextPrimary
+    color: Color = MaterialTheme.colorScheme.onSurface // Theme-aware default
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -307,7 +309,7 @@ private fun StatItem(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
     }
 }
@@ -380,14 +382,14 @@ private fun SortChip(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(50),
-        color = if (isSelected) FplPrimary else FplChipBackground,
+        color = if (isSelected) FplPrimary else MaterialTheme.colorScheme.surfaceVariant, // Theme-aware
         modifier = Modifier.animateContentSize()
     ) {
         Text(
             text = title,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             style = MaterialTheme.typography.labelLarge,
-            color = if (isSelected) Color.White else FplChipText,
+            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
         )
     }

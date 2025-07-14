@@ -44,11 +44,11 @@ fun HeadToHeadTab(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(FplSurface)
+                .background(MaterialTheme.colorScheme.surface) // Theme-aware
                 .shadow(
                     elevation = 5.dp,
                     shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
-                    spotColor = Color.Black.copy(alpha = 0.05f)
+                    spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f) // Theme-aware
                 )
                 .padding(16.dp)
         ) {
@@ -61,12 +61,13 @@ fun HeadToHeadTab(
                     Text(
                         text = "Head-to-Head Analysis",
                         style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
                     )
                     Text(
                         text = "Compare manager performance",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
                 }
 
@@ -169,7 +170,8 @@ private fun ManagerSelector(
             Text(
                 text = "Select Manager",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -223,11 +225,11 @@ private fun ManagerChip(
             containerColor = if (isSelected) {
                 FplPrimary
             } else {
-                FplSurface
+                MaterialTheme.colorScheme.surfaceVariant // Theme-aware
             }
         ),
         border = if (!isSelected) {
-            BorderStroke(1.dp, FplDivider)
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outline) // Theme-aware
         } else null,
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isSelected) 8.dp else 2.dp
@@ -249,7 +251,10 @@ private fun ManagerChip(
                             )
                         } else {
                             Brush.radialGradient(
-                                colors = listOf(FplChipBackground, FplBackground)
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                    MaterialTheme.colorScheme.surface
+                                )
                             )
                         }
                     ),
@@ -259,7 +264,7 @@ private fun ManagerChip(
                     text = manager.managerName.take(2).uppercase(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) FplPrimaryDark else FplTextPrimary
+                    color = if (isSelected) FplPrimaryDark else MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
             }
 
@@ -267,7 +272,7 @@ private fun ManagerChip(
                 text = manager.managerName,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = if (isSelected) Color.White else FplTextPrimary,
+                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface, // Theme-aware
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
@@ -465,12 +470,13 @@ private fun H2HStatCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White // Keep white for contrast on colored backgrounds
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.labelSmall,
-                    color = FplTextSecondary
+                    color = Color.White.copy(alpha = 0.8f) // Keep white for contrast
                 )
             }
         }
@@ -542,10 +548,8 @@ private fun H2HRecordCard(
             .fillMaxWidth()
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
-        elevation = CardDefaults.cardElevation(
-            0.dp
-        )
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
+        elevation = CardDefaults.cardElevation(2.dp) // Added slight elevation
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -562,12 +566,13 @@ private fun H2HRecordCard(
                         Text(
                             text = "vs",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                         )
                         Text(
                             text = record.opponentName,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
                         )
                     }
 
@@ -612,7 +617,7 @@ private fun H2HRecordCard(
                     Text(
                         text = "${record.winPercentage.toInt()}% Win Rate",
                         style = MaterialTheme.typography.labelSmall,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
                 }
 
@@ -620,7 +625,7 @@ private fun H2HRecordCard(
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = FplTextSecondary,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -630,7 +635,7 @@ private fun H2HRecordCard(
                 Column(
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Divider(color = FplDivider)
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant) // Theme-aware
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -651,7 +656,7 @@ private fun H2HRecordCard(
                             Text(
                                 text = "Difference",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = FplTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                             )
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -712,7 +717,7 @@ private fun RecordBadge(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
     }
 }
@@ -729,7 +734,7 @@ private fun PointsComparison(
         Text(
             text = title,
             style = MaterialTheme.typography.labelSmall,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
         Text(
             text = value.toString(),
@@ -747,7 +752,7 @@ private fun RecentFormSection(results: List<H2HResult>) {
             text = "Recent Meetings",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = FplTextPrimary
+            color = MaterialTheme.colorScheme.onSurface // Theme-aware
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -811,13 +816,14 @@ private fun EmptyH2HState() {
             Text(
                 text = "Select a Manager",
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
 
             Text(
                 text = "Choose a manager from the list above to see their head-to-head record against all other managers in the league",
                 style = MaterialTheme.typography.bodyMedium,
-                color = FplTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
                 textAlign = TextAlign.Center
             )
 
@@ -844,13 +850,13 @@ private fun InfoRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = FplTextSecondary,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             modifier = Modifier.size(20.dp)
         )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
     }
 }
@@ -868,12 +874,13 @@ private fun H2HDetailSheet(
             Column {
                 Text(
                     text = "${manager.managerName} Stats",
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
                     text = "Detailed H2H Analysis",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = FplTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                 )
             }
         },
@@ -894,7 +901,8 @@ private fun H2HDetailSheet(
                         Text(
                             text = "Summary",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
                         )
 
                         DetailStatRow(
@@ -934,7 +942,8 @@ private fun H2HDetailSheet(
                     Text(
                         text = "All Matchups",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
                     )
                 }
 
@@ -975,7 +984,8 @@ private fun DetailStatRow(
             )
             Text(
                 text = label,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
         }
 
@@ -993,7 +1003,7 @@ private fun CompactH2HRow(record: H2HRecord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = FplBackground)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant) // Theme-aware
     ) {
         Row(
             modifier = Modifier
@@ -1005,13 +1015,14 @@ private fun CompactH2HRow(record: H2HRecord) {
             Text(
                 text = record.opponentName,
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface, // Theme-aware
                 modifier = Modifier.weight(1f)
             )
 
             Text(
                 text = "${record.wins}-${record.draws}-${record.losses}",
                 style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
 
             Text(
@@ -1026,7 +1037,7 @@ private fun CompactH2HRow(record: H2HRecord) {
     }
 }
 
-// Data classes and helper functions
+// Data classes and helper functions remain the same...
 data class H2HRecord(
     val opponentId: String,
     val opponentName: String,

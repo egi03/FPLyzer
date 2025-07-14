@@ -23,17 +23,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fplyzer.ui.theme.FplBlue
-import com.example.fplyzer.ui.theme.FplDivider
 import com.example.fplyzer.ui.theme.FplGreen
 import com.example.fplyzer.ui.theme.FplOrange
 import com.example.fplyzer.ui.theme.FplPink
 import com.example.fplyzer.ui.theme.FplRed
 import com.example.fplyzer.ui.theme.FplSecondary
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
 import com.example.fplyzer.ui.theme.FplYellow
-
 
 @Composable
 fun ChipSuccessChart(
@@ -43,7 +38,7 @@ fun ChipSuccessChart(
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -53,7 +48,7 @@ fun ChipSuccessChart(
                 text = "Chip Success Rate",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -81,7 +76,8 @@ fun ChipSuccessChart(
                             Text(
                                 text = getChipDisplayName(chipType),
                                 style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Text(
                                 text = String.format("%.1f avg pts", avgPoints),
@@ -103,7 +99,7 @@ fun ChipSuccessChart(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(FplDivider.copy(alpha = 0.3f))
+                                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                             )
 
                             Row(modifier = Modifier.fillMaxSize()) {
@@ -129,7 +125,7 @@ fun ChipSuccessChart(
                         Text(
                             text = "${usages.size} managers used",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

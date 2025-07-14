@@ -57,18 +57,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.fplyzer.ui.theme.FplAccent
 import com.example.fplyzer.ui.theme.FplAccentDark
-import com.example.fplyzer.ui.theme.FplChipBackground
-import com.example.fplyzer.ui.theme.FplChipText
-import com.example.fplyzer.ui.theme.FplGlass
-import com.example.fplyzer.ui.theme.FplPrimary
-import com.example.fplyzer.ui.theme.FplPrimaryDark
-import com.example.fplyzer.ui.theme.FplSecondary
-import com.example.fplyzer.ui.theme.FplShadow
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextOnAccent
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
-import com.example.fplyzer.ui.theme.FplTextTertiary
 
 @Composable
 fun GlassmorphicCard(
@@ -82,8 +70,8 @@ fun GlassmorphicCard(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        FplGlass.copy(alpha = 0.8f),
-                        FplGlass.copy(alpha = 0.6f)
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)
                     )
                 )
             )
@@ -91,8 +79,8 @@ fun GlassmorphicCard(
                 width = 1.dp,
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.3f),
-                        Color.White.copy(alpha = 0.3f)
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                     )
                 ),
                 shape = shape
@@ -105,7 +93,10 @@ fun GlassmorphicCard(
 @Composable
 fun GradientCard(
     modifier: Modifier = Modifier,
-    gradientColors: List<Color> = listOf(FplPrimary, FplSecondary),
+    gradientColors: List<Color> = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.secondary
+    ),
     shape: Shape = MaterialTheme.shapes.large,
     elevation: Dp = 12.dp,
     content: @Composable () -> Unit
@@ -139,7 +130,10 @@ fun ModernButton(
     isLoading: Boolean = false,
     text: String,
     icon: ImageVector? = null,
-    gradient: List<Color> = listOf(FplAccent, FplAccentDark)
+    gradient: List<Color> = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.primaryContainer
+    )
 ) {
     val scale by animateFloatAsState(
         targetValue = if (enabled) 1f else 0.95f,
@@ -159,8 +153,8 @@ fun ModernButton(
                 } else {
                     Brush.horizontalGradient(
                         colors = listOf(
-                            FplTextTertiary,
-                            FplTextTertiary
+                            MaterialTheme.colorScheme.onSurfaceVariant,
+                            MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                 }
@@ -172,7 +166,7 @@ fun ModernButton(
             enabled = enabled && !isLoading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Transparent,
-                contentColor = FplTextOnAccent
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ),
             contentPadding = PaddingValues(vertical = 16.dp, horizontal = 24.dp),
             elevation = ButtonDefaults.buttonElevation(0.dp)
@@ -180,7 +174,7 @@ fun ModernButton(
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
-                    color = FplTextOnAccent,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = 2.dp
                 )
             } else {
@@ -209,8 +203,16 @@ fun ModernChip(
     selected: Boolean = false,
     icon: ImageVector? = null
 ) {
-    val backgroundColor = if (selected) FplAccent else FplChipBackground
-    val textColor = if (selected) FplPrimaryDark else FplChipText
+    val backgroundColor = if (selected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    val textColor = if (selected) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
     Surface(
         onClick = onClick ?: {},

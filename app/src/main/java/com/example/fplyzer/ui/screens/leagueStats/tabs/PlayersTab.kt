@@ -24,7 +24,6 @@ import com.example.fplyzer.ui.components.playerAnalytics.TemplateTeamCard
 import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsUiState
 import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsViewModel
 import com.example.fplyzer.ui.theme.FplSecondary
-import com.example.fplyzer.ui.theme.FplTextPrimary
 
 @Composable
 fun PlayersTab(
@@ -99,7 +98,7 @@ fun PlayersTab(
                 text = "Most Captained",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
         }
         items(playerAnalytics.captaincy.take(5)) { captaincy ->
@@ -112,7 +111,7 @@ fun PlayersTab(
                 text = "All Players by Ownership",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
         }
 

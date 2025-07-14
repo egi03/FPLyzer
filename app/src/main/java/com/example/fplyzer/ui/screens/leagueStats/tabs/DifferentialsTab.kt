@@ -87,7 +87,7 @@ fun DifferentialsTab(
                         Text(
                             text = "Analyzing differentials...",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                         )
                     }
                 }
@@ -169,7 +169,7 @@ private fun DifferentialHeaderCard(
                     Text(
                         text = "Unique picks that made the difference",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = FplTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface, // Theme-aware
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -178,7 +178,7 @@ private fun DifferentialHeaderCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(FplGlass.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) // Theme-aware
                 ) {
                     Icon(
                         Icons.Default.Info,
@@ -281,7 +281,7 @@ private fun SummaryStatBox(
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
-            color = FplTextPrimary,
+            color = MaterialTheme.colorScheme.onSurface, // Theme-aware
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -290,7 +290,7 @@ private fun SummaryStatBox(
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
-            color = FplTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             textAlign = TextAlign.Center
         )
     }
@@ -335,8 +335,8 @@ private fun DifferentialAnalysisCard(
             .fillMaxWidth()
             .clickable { onTap() },
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
-        elevation = CardDefaults.cardElevation(4.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
+        elevation = CardDefaults.cardElevation(2.dp) // Added elevation
     ) {
         Column {
             // Header
@@ -369,7 +369,7 @@ private fun DifferentialAnalysisCard(
                         text = analysis.managerName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = FplTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
                     )
 
                     Row(
@@ -381,7 +381,7 @@ private fun DifferentialAnalysisCard(
                         Text(
                             text = "${analysis.differentialModelPicks.size} differentials",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                         )
                     }
 
@@ -409,14 +409,14 @@ private fun DifferentialAnalysisCard(
                         Text(
                             text = "%",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                     }
                     Text(
                         text = "success rate",
                         style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
                     Text(
                         text = "${analysis.totalDifferentialPoints} pts",
@@ -429,7 +429,7 @@ private fun DifferentialAnalysisCard(
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = FplTextSecondary
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                 )
             }
 
@@ -440,7 +440,7 @@ private fun DifferentialAnalysisCard(
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Column {
-                    Divider(color = FplDivider)
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant) // Theme-aware
 
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -494,12 +494,13 @@ private fun DifferentialPicksSection(picks: List<DifferentialModelPick>) {
             Text(
                 text = "Top Differential Picks", // Changed from "Differential Picks"
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
             Text(
                 text = "Best ${picks.size} picks", // Changed to indicate these are the best
                 style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
         }
 
@@ -522,7 +523,7 @@ private fun DifferentialPickRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .background(FplBackground)
+            .background(MaterialTheme.colorScheme.surfaceVariant) // Theme-aware
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -561,7 +562,8 @@ private fun DifferentialPickRow(
             Text(
                 text = pick.player.webName,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -569,7 +571,7 @@ private fun DifferentialPickRow(
                 Text(
                     text = "${pick.gameweeksPicked.size} GWs",
                     style = MaterialTheme.typography.bodySmall,
-                    color = FplTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                 )
                 Text(
                     text = "${pick.leagueOwnership.toInt()}% owned",
@@ -621,12 +623,13 @@ private fun MissedOpportunitiesSection(missed: List<MissedDifferential>) {
             Text(
                 text = "Missed Opportunities",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
             Text(
                 text = "${missed.size} missed",
                 style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
         }
 
@@ -659,12 +662,13 @@ private fun MissedOpportunityRow(missed: MissedDifferential) {
             Text(
                 text = missed.player.webName,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
             Text(
                 text = "Owned by: ${missed.ownedByManagers.take(3).joinToString(", ")}",
                 style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -682,7 +686,7 @@ private fun MissedOpportunityRow(missed: MissedDifferential) {
             Text(
                 text = "pts missed",
                 style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
         }
     }
@@ -744,13 +748,13 @@ private fun EmptyDifferentialView() {
         Text(
             text = "No Differential Data",
             style = MaterialTheme.typography.titleLarge,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
 
         Text(
             text = "Differential analysis will appear here once ownership data is available",
             style = MaterialTheme.typography.bodyMedium,
-            color = FplTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             textAlign = TextAlign.Center
         )
     }
@@ -763,7 +767,10 @@ private fun DifferentialInfoDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Understanding Differentials")
+            Text(
+                "Understanding Differentials",
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+            )
         },
         text = {
             Column(
@@ -771,32 +778,38 @@ private fun DifferentialInfoDialog(
             ) {
                 Text(
                     text = "What are Differentials?",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
-                    text = "Differential picks are players owned by few managers in your league compared to the general FPL population. They're risky but can provide huge advantages when they pay off."
+                    text = "Differential picks are players owned by few managers in your league compared to the general FPL population. They're risky but can provide huge advantages when they pay off.",
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
 
                 Text(
                     text = "Risk Levels:",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
                     text = "• Conservative: Sticks to popular template players\n" +
                             "• Balanced: Good mix of template and differentials\n" +
                             "• Aggressive: Bold differential choices\n" +
-                            "• Reckless: High-risk, high-reward strategy"
+                            "• Reckless: High-risk, high-reward strategy",
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
 
                 Text(
                     text = "Strategy Tips:",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
                     text = "• Time differentials around good fixtures\n" +
                             "• Don't go too differential in defense\n" +
                             "• Balance risk across your team\n" +
-                            "• Sometimes template is template for a reason!"
+                            "• Sometimes template is template for a reason!",
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
             }
         },

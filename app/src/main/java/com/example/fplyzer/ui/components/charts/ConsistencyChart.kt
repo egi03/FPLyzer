@@ -29,13 +29,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.fplyzer.ui.theme.FplBlue
-import com.example.fplyzer.ui.theme.FplDivider
 import com.example.fplyzer.ui.theme.FplGreen
 import com.example.fplyzer.ui.theme.FplOrange
 import com.example.fplyzer.ui.theme.FplRed
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
 
 @Composable
 fun ConsistencyChart(
@@ -45,7 +41,7 @@ fun ConsistencyChart(
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -55,7 +51,7 @@ fun ConsistencyChart(
                 text = "Consistency Analysis",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -98,7 +94,8 @@ fun ConsistencyChart(
                         Text(
                             text = manager,
                             style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = consistencyText,
@@ -117,7 +114,7 @@ fun ConsistencyChart(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(FplDivider.copy(alpha = 0.3f))
+                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                         )
 
                         // Value bar
@@ -174,7 +171,7 @@ private fun ConsistencyLegendItem(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

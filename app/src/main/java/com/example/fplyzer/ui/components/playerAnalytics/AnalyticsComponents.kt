@@ -43,19 +43,10 @@ import com.example.fplyzer.data.models.statistics.CaptaincyData
 import com.example.fplyzer.data.models.statistics.DifferentialPick
 import com.example.fplyzer.data.models.statistics.PlayerOwnership
 import com.example.fplyzer.ui.components.GlassmorphicCard
-import com.example.fplyzer.ui.theme.FplAccent
-import com.example.fplyzer.ui.theme.FplAccentLight
 import com.example.fplyzer.ui.theme.FplBlue
-import com.example.fplyzer.ui.theme.FplDivider
-import com.example.fplyzer.ui.theme.FplGlass
 import com.example.fplyzer.ui.theme.FplGreen
 import com.example.fplyzer.ui.theme.FplOrange
-import com.example.fplyzer.ui.theme.FplPrimary
-import com.example.fplyzer.ui.theme.FplPrimaryDark
 import com.example.fplyzer.ui.theme.FplRed
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
 import com.example.fplyzer.ui.theme.FplYellow
 
 @Composable
@@ -75,7 +66,7 @@ fun PlayerOwnershipCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Row(
@@ -96,7 +87,7 @@ fun PlayerOwnershipCard(
                             "DEF" -> Color(0xFF00D685)
                             "MID" -> Color(0xFF05F1FF)
                             "FWD" -> Color(0xFFE90052)
-                            else -> FplPrimary
+                            else -> MaterialTheme.colorScheme.primary
                         }.copy(alpha = 0.2f)
                     ),
                 contentAlignment = Alignment.Center
@@ -110,7 +101,7 @@ fun PlayerOwnershipCard(
                         "DEF" -> Color(0xFF00D685)
                         "MID" -> Color(0xFF05F1FF)
                         "FWD" -> Color(0xFFE90052)
-                        else -> FplPrimary
+                        else -> MaterialTheme.colorScheme.primary
                     }
                 )
             }
@@ -126,14 +117,15 @@ fun PlayerOwnershipCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     if (player.isTemplate) {
                         Icon(
                             Icons.Default.Verified,
                             contentDescription = "Template",
                             modifier = Modifier.size(16.dp),
-                            tint = FplPrimary
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                     if (player.isDifferential) {
@@ -148,7 +140,7 @@ fun PlayerOwnershipCard(
                 Text(
                     text = "${player.teamName} • £${player.price}m • ${player.points} pts",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = FplTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -180,7 +172,7 @@ fun PlayerOwnershipCard(
                         Text(
                             text = "${player.ownershipCount}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -223,7 +215,7 @@ fun CaptaincyCard(
                         text = "C",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Black,
-                        color = FplPrimaryDark
+                        color = MaterialTheme.colorScheme.surface
                     )
                 }
 
@@ -231,7 +223,8 @@ fun CaptaincyCard(
                     Text(
                         text = captaincy.playerName,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -239,13 +232,13 @@ fun CaptaincyCard(
                         Text(
                             text = "${captaincy.captainCount} captains",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         if (captaincy.viceCaptainCount > 0) {
                             Text(
                                 text = "• ${captaincy.viceCaptainCount} VC",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = FplTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -264,7 +257,7 @@ fun CaptaincyCard(
                 Text(
                     text = "${String.format("%.1f", captaincy.captainPercentage)}%",
                     style = MaterialTheme.typography.bodySmall,
-                    color = FplTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -281,7 +274,7 @@ fun DifferentialCard(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = FplSurface
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
@@ -291,7 +284,7 @@ fun DifferentialCard(
                 .background(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            FplSurface,
+                            MaterialTheme.colorScheme.surface,
                             FplGreen.copy(alpha = 0.1f)
                         )
                     )
@@ -318,18 +311,19 @@ fun DifferentialCard(
                         Text(
                             text = differential.playerName,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     Text(
                         text = "${differential.teamName} • ${differential.ownershipPercentage.toInt()}% owned",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "Owned by: ${differential.managers.take(3).joinToString(", ")}${if (differential.managers.size > 3) " +${differential.managers.size - 3}" else ""}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -347,7 +341,7 @@ fun DifferentialCard(
                     Text(
                         text = "${String.format("%.1f", differential.pointsPerMillion)} pts/£m",
                         style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Box(
                         modifier = Modifier
@@ -377,7 +371,7 @@ fun TemplateTeamCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplPrimary),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(
@@ -395,20 +389,20 @@ fun TemplateTeamCard(
                     Icon(
                         Icons.Default.Groups,
                         contentDescription = "Template Team",
-                        tint = FplAccent,
+                        tint = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(24.dp)
                     )
                     Text(
                         text = "Template Team",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 Text(
                     text = "${(templateOwnership * 100).toInt()}% have full template",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = FplAccentLight
+                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                 )
             }
 
@@ -441,7 +435,7 @@ private fun PositionRow(
         Text(
             text = position,
             style = MaterialTheme.typography.labelLarge,
-            color = FplAccentLight,
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
             modifier = Modifier.width(40.dp)
         )
         Row(
@@ -452,13 +446,13 @@ private fun PositionRow(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(16.dp))
-                        .background(FplGlass.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = player.playerName,
                         style = MaterialTheme.typography.bodySmall,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -489,7 +483,7 @@ fun OwnershipDistributionChart(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -499,7 +493,7 @@ fun OwnershipDistributionChart(
                 text = "Ownership Distribution${position?.let { " - $it" } ?: ""}",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = FplTextPrimary
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -513,7 +507,7 @@ fun OwnershipDistributionChart(
                     Text(
                         text = range,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.width(80.dp)
                     )
 
@@ -526,7 +520,7 @@ fun OwnershipDistributionChart(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(FplDivider.copy(alpha = 0.3f))
+                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                         )
 
                         val maxCount = distribution.maxOf { it.second }.toFloat()
@@ -557,7 +551,7 @@ fun OwnershipDistributionChart(
                     Text(
                         text = count.toString(),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(start = 8.dp),
                         fontWeight = FontWeight.Medium
                     )
@@ -584,12 +578,13 @@ private fun ComparisonRow(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f),
-            textAlign = TextAlign.End
+            textAlign = TextAlign.End,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = metric,
             style = MaterialTheme.typography.bodySmall,
-            color = FplTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp),
             textAlign = TextAlign.Center
         )
@@ -598,7 +593,8 @@ private fun ComparisonRow(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

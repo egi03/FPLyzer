@@ -86,7 +86,7 @@ fun WhatIfTab(
                         Text(
                             text = "Analyzing what-if scenarios...",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                         )
                     }
                 }
@@ -175,7 +175,7 @@ private fun WhatIfHeaderCard(
                     Text(
                         text = "Explore alternative timelines",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = FplTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface, // Theme-aware
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -184,7 +184,7 @@ private fun WhatIfHeaderCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(FplGlass.copy(alpha = 0.2f))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) // Theme-aware
                 ) {
                     Icon(
                         Icons.Default.Info,
@@ -240,7 +240,8 @@ private fun WhatIfHeaderCard(
                         Text(
                             text = "League Stability",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
                         )
                         Text(
                             text = summary.stabilityDescription,
@@ -262,7 +263,7 @@ private fun WhatIfHeaderCard(
                             Text(
                                 text = "Most volatile",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = FplTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                             )
                         }
                     }
@@ -336,12 +337,13 @@ private fun WhatIfStatBox(
             text = title,
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface // Theme-aware
         )
         Text(
             text = subtitle,
             style = MaterialTheme.typography.labelSmall,
-            color = FplTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             textAlign = TextAlign.Center
         )
     }
@@ -377,8 +379,8 @@ private fun WhatIfScenarioCard(
             .fillMaxWidth()
             .clickable { onTap() },
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
-        elevation = CardDefaults.cardElevation(4.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
+        elevation = CardDefaults.cardElevation(2.dp) // Added elevation
     ) {
         Column {
             // Header
@@ -402,14 +404,15 @@ private fun WhatIfScenarioCard(
                         Text(
                             text = scenario.title,
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
                         )
                     }
 
                     Text(
                         text = scenario.description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
                         maxLines = if (isExpanded) Int.MAX_VALUE else 2,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -456,12 +459,12 @@ private fun WhatIfScenarioCard(
                     Text(
                         text = "managers",
                         style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
                     Text(
                         text = scenario.impact.impactLevel,
                         style = MaterialTheme.typography.bodySmall,
-                        color = FplTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
                         textAlign = TextAlign.End
                     )
                 }
@@ -469,7 +472,7 @@ private fun WhatIfScenarioCard(
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = FplTextSecondary
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                 )
             }
 
@@ -480,7 +483,7 @@ private fun WhatIfScenarioCard(
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Column {
-                    Divider(color = FplDivider)
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant) // Theme-aware
 
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -497,7 +500,8 @@ private fun WhatIfScenarioCard(
                                 Text(
                                     text = "Biggest Changes",
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                                 )
 
                                 biggestWinner?.let { winner ->
@@ -526,12 +530,13 @@ private fun WhatIfScenarioCard(
                                     Text(
                                         text = "All Changes",
                                         style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
                                     )
                                     Text(
                                         text = "Showing top 10",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = FplTextSecondary
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                                     )
                                 }
 
@@ -558,7 +563,8 @@ private fun ScenarioImpactOverview(impact: ScenarioImpact) {
         Text(
             text = "Impact Analysis",
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface // Theme-aware
         )
 
         Row(
@@ -622,7 +628,7 @@ private fun ImpactStatBox(
         Text(
             text = title,
             style = MaterialTheme.typography.labelSmall,
-            color = FplTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             textAlign = TextAlign.Center
         )
     }
@@ -642,12 +648,13 @@ private fun WhatIfResultRow(result: WhatIfResult, isPositive: Boolean) {
             Text(
                 text = result.managerName,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
             )
             Text(
                 text = "Rank: ${result.originalRank} → ${result.newRank}",
                 style = MaterialTheme.typography.bodySmall,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
         }
 
@@ -676,7 +683,7 @@ private fun WhatIfResultRow(result: WhatIfResult, isPositive: Boolean) {
                 Text(
                     text = "${if (result.pointsChange > 0) "+" else ""}${result.pointsChange} pts",
                     style = MaterialTheme.typography.bodySmall,
-                    color = FplTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                 )
             }
         }
@@ -689,20 +696,21 @@ private fun CompactResultRow(result: WhatIfResult) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.small)
-            .background(FplBackground)
+            .background(MaterialTheme.colorScheme.surfaceVariant) // Theme-aware
             .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = result.managerName,
             style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurface, // Theme-aware
             modifier = Modifier.weight(1f)
         )
 
         Text(
             text = "${result.originalRank} → ${result.newRank}",
             style = MaterialTheme.typography.bodySmall,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -728,7 +736,7 @@ private fun CompactResultRow(result: WhatIfResult) {
             Text(
                 text = "=",
                 style = MaterialTheme.typography.bodySmall,
-                color = FplGray
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
         }
     }
@@ -753,13 +761,13 @@ private fun EmptyWhatIfView() {
         Text(
             text = "No What-If Scenarios",
             style = MaterialTheme.typography.titleLarge,
-            color = FplTextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
         )
 
         Text(
             text = "Alternative timeline analysis will appear here",
             style = MaterialTheme.typography.bodyMedium,
-            color = FplTextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
             textAlign = TextAlign.Center
         )
     }
@@ -772,7 +780,10 @@ private fun WhatIfInfoDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Understanding What-If Scenarios")
+            Text(
+                "Understanding What-If Scenarios",
+                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+            )
         },
         text = {
             Column(
@@ -780,29 +791,35 @@ private fun WhatIfInfoDialog(
             ) {
                 Text(
                     text = "What are What-If Scenarios?",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
-                    text = "What-if scenarios show how league standings would change if different decisions were made. They help you understand the impact of key choices and identify missed opportunities."
+                    text = "What-if scenarios show how league standings would change if different decisions were made. They help you understand the impact of key choices and identify missed opportunities.",
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
 
                 Text(
                     text = "Captain Scenarios:",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
-                    text = "Shows what would happen if managers made different captain choices. Often reveals how much captain selection affects final rankings."
+                    text = "Shows what would happen if managers made different captain choices. Often reveals how much captain selection affects final rankings.",
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
 
                 Text(
                     text = "Impact Levels:",
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
                 Text(
                     text = "• 💤 Minimal: Few managers affected\n" +
                             "• 📊 Minor: Small changes to standings\n" +
                             "• 📈 Moderate: Noticeable rank shifts\n" +
-                            "• 🌪️ Major: Significant league shake-up"
+                            "• 🌪️ Major: Significant league shake-up",
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
             }
         },

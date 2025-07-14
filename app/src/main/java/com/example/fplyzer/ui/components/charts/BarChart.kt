@@ -29,11 +29,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.fplyzer.ui.theme.FplAccent
-import com.example.fplyzer.ui.theme.FplDivider
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
 
 @SuppressLint("DefaultLocale")
 @Composable
@@ -41,13 +36,13 @@ fun BarChart(
     data: List<Pair<String, Float>>,
     modifier: Modifier = Modifier,
     title: String = "",
-    barColor: Color = FplAccent,
+    barColor: Color = MaterialTheme.colorScheme.primary,
     showValues: Boolean = true
 ) {
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -58,7 +53,7 @@ fun BarChart(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = FplTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -75,7 +70,7 @@ fun BarChart(
                     Text(
                         text = label,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = FplTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.width(120.dp)
                     )
 
@@ -89,7 +84,7 @@ fun BarChart(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(FplDivider.copy(alpha = 0.3f))
+                                .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                         )
 
                         // Value bar with animation
@@ -118,7 +113,7 @@ fun BarChart(
                         Text(
                             text = String.format("%.1f", value),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = FplTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 8.dp)
                         )
                     }

@@ -146,7 +146,8 @@ fun TrendsTab(
                 Text(
                     text = "Select Managers",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
                 )
 
                 Row(
@@ -156,7 +157,7 @@ fun TrendsTab(
                     Text(
                         text = "${selectedMembers.size}/5 selected",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (selectedMembers.size >= 5) FplOrange else FplTextSecondary
+                        color = if (selectedMembers.size >= 5) FplOrange else MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
                     )
 
                     if (selectedMembers.isNotEmpty()) {
@@ -312,13 +313,13 @@ private fun MemberChip(
     val backgroundColor = when {
         isSelected -> color
         enabled -> color.copy(alpha = 0.2f)
-        else -> Color.Gray.copy(alpha = 0.2f)
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f) // Theme-aware
     }
 
     val textColor = when {
         isSelected -> Color.White
         enabled -> color
-        else -> Color.Gray
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) // Theme-aware
     }
 
     Surface(
@@ -359,17 +360,17 @@ private fun EmptyChartView() {
                 imageVector = Icons.Default.ShowChart,
                 contentDescription = null,
                 modifier = Modifier.size(60.dp),
-                tint = Color.Gray
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) // Theme-aware
             )
             Text(
                 text = "Select up to 5 managers to view trends",
                 style = MaterialTheme.typography.bodyLarge,
-                color = FplTextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
             )
             Text(
                 text = "Choose managers from the list above to compare their performance",
                 style = MaterialTheme.typography.bodyMedium,
-                color = FplTextSecondary.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f) // Theme-aware
             )
         }
     }

@@ -38,14 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.fplyzer.ui.theme.FplAccent
 import com.example.fplyzer.ui.theme.FplBlue
-import com.example.fplyzer.ui.theme.FplDivider
 import com.example.fplyzer.ui.theme.FplGreen
 import com.example.fplyzer.ui.theme.FplOrange
 import com.example.fplyzer.ui.theme.FplSecondary
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextPrimary
-import com.example.fplyzer.ui.theme.FplTextSecondary
-
 
 @Composable
 fun LineChart(
@@ -60,7 +55,7 @@ fun LineChart(
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = FplSurface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
@@ -71,10 +66,14 @@ fun LineChart(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = FplTextPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
+
+            // Extract theme colors before Canvas
+            val gridLineColor = MaterialTheme.colorScheme.outline
+            val gridTextColor = MaterialTheme.colorScheme.onSurfaceVariant
 
             Canvas(
                 modifier = Modifier
@@ -92,12 +91,12 @@ fun LineChart(
                 val maxValue = allPoints.maxOrNull() ?: 100
                 val valueRange = maxValue - minValue
 
-                // Draw grid lines
+                // Draw grid lines with theme-aware colors
                 val gridLines = 5
                 for (i in 0..gridLines) {
                     val y = padding + (chartHeight * i / gridLines)
                     drawLine(
-                        color = FplDivider,
+                        color = gridLineColor,
                         start = Offset(padding, y),
                         end = Offset(width - padding, y),
                         strokeWidth = 1.dp.toPx()
@@ -108,7 +107,7 @@ fun LineChart(
                     drawIntoCanvas { canvas ->
                         val paint = android.graphics.Paint().apply {
                             textSize = 10.sp.toPx()
-                            color = FplTextSecondary.toArgb()
+                            color = gridTextColor.toArgb()
                         }
                         canvas.nativeCanvas.drawText(
                             value.toString(),
@@ -177,7 +176,7 @@ fun LineChart(
                         Text(
                             text = labels[managerId] ?: "",
                             style = MaterialTheme.typography.bodySmall,
-                            color = FplTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

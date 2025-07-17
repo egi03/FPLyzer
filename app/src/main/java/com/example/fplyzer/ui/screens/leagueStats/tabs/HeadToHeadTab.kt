@@ -1127,7 +1127,6 @@ private fun calculateH2HRecords(
     return stats.managerStats.values
         .filter { it.managerId != manager.managerId }
         .map { opponent ->
-            // Calculate head-to-head record
             val results = manager.pointsHistory.zip(opponent.pointsHistory).mapIndexed { index, (myPoints, theirPoints) ->
                 when {
                     myPoints > theirPoints -> H2HResult(index + 1, H2HOutcome.WIN, myPoints, theirPoints)

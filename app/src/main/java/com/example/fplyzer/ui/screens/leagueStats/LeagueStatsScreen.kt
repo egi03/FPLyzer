@@ -247,14 +247,12 @@ private fun EnhancedLeagueStatsContent(
             .fillMaxSize()
             .padding(paddingValues)
     ) {
-        // Enhanced Tab Bar - now connected to pager
         EnhancedTabBar(
-            selectedTab = uiState.selectedTab, // Use UI state, not pager state
+            selectedTab = uiState.selectedTab,
             onTabSelected = viewModel::setSelectedTab,
             isDemo = isDemo
         )
 
-        // Swipeable tab content using HorizontalPager
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
@@ -369,7 +367,6 @@ private fun EnhancedLoadingScreen(paddingValues: PaddingValues, isDemo: Boolean)
         ) {
             val infiniteTransition = rememberInfiniteTransition()
 
-            // Pulsing animation
             val scale by infiniteTransition.animateFloat(
                 initialValue = 0.9f,
                 targetValue = 1.1f,
@@ -534,7 +531,6 @@ private fun EnhancedErrorScreen(
     }
 }
 
-// Helper data class
 private data class TabItem(
     val title: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector

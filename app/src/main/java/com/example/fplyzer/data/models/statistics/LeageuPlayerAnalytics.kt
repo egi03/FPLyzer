@@ -19,7 +19,7 @@ data class PlayerOwnership(
     val position: String,
     val ownershipCount: Int,
     val ownershipPercentage: Double,
-    val effectiveOwnership: Double, // Accounting for captaincy
+    val effectiveOwnership: Double,
     val price: Double,
     val points: Int,
     val isTemplate: Boolean, // Part of template team (>50% ownership)
@@ -32,7 +32,7 @@ data class CaptaincyData(
     val captainCount: Int,
     val captainPercentage: Double,
     val viceCaptainCount: Int,
-    val totalPointsEarned: Int, // Points earned as captain
+    val totalPointsEarned: Int,
     val averageReturn: Double,
     val successRate: Double // % of times returned above average
 )
@@ -53,8 +53,8 @@ data class TransferTrends(
     val mostTransferredOut: List<TransferMovement>,
     val priceRisers: List<PriceChange>,
     val priceFallers: List<PriceChange>,
-    val bandwagons: List<Bandwagon>, // Players many managers are getting at once
-    val kneejerk: List<KneejerkTransfer> // Reactionary transfers after big hauls
+    val bandwagons: List<Bandwagon>,
+    val kneejerk: List<KneejerkTransfer>
 )
 
 data class TransferMovement(
@@ -80,7 +80,7 @@ data class Bandwagon(
     val playerName: String,
     val managersJoining: Int,
     val gameweekStarted: Int,
-    val momentum: Double // How fast managers are getting this player
+    val momentum: Double
 )
 
 data class KneejerkTransfer(
@@ -88,7 +88,7 @@ data class KneejerkTransfer(
     val playerOut: Int,
     val playerInName: String,
     val playerOutName: String,
-    val triggerEvent: String, // What caused the kneejerk
+    val triggerEvent: String,
     val managersCount: Int
 )
 
@@ -98,10 +98,10 @@ data class PlayerLeaguePerformance(
     val totalPoints: Int,
     val averagePoints: Double,
     val consistency: Double,
-    val explosiveness: Double, // Tendency for big hauls
-    val ownershipWeightedPoints: Double, // Points * (1 - ownership%)
-    val captaincyROI: Double, // Return on investment when captained
-    val benchFrequency: Double, // How often benched
+    val explosiveness: Double,
+    val ownershipWeightedPoints: Double,
+    val captaincyROI: Double,
+    val benchFrequency: Double,
     val performanceRank: Int
 )
 
@@ -134,16 +134,16 @@ data class BenchBoostAnalysis(
     val managerName: String,
     val gameweek: Int,
     val benchPoints: Int,
-    val success: Boolean // Above average bench boost
+    val success: Boolean
 )
 
 data class TemplateAnalysis(
     val gameweek: Int,
     val templatePlayers: List<Int>,
-    val templateOwnership: Double, // % of managers with full template
+    val templateOwnership: Double,
     val templatePoints: Int,
     val nonTemplateTopPerformers: List<PlayerOwnership>,
-    val templateEVO: Double // Expected value vs ownership
+    val templateEVO: Double
 )
 
 data class PlayerComparison(
@@ -180,7 +180,7 @@ data class PlayerValueMetric(
     val pointsPerMillion: Double,
     val pointsPerGame: Double,
     val ownership: Double,
-    val valueScore: Double // Composite score
+    val valueScore: Double
 )
 
 data class PremiumAnalysis(
@@ -188,7 +188,7 @@ data class PremiumAnalysis(
     val playerName: String,
     val price: Double,
     val ownership: Double,
-    val justificationScore: Double, // Is the premium price justified?
+    val justificationScore: Double,
     val alternativesCount: Int
 )
 
@@ -197,13 +197,13 @@ data class BudgetAnalysis(
     val playerName: String,
     val price: Double,
     val ownership: Double,
-    val enablerScore: Double, // How good as an enabler
+    val enablerScore: Double,
     val startingFrequency: Double
 )
 
 data class PositionTrends(
     val averageSpend: Double,
     val premiumOwnership: Double,
-    val rotationRisk: List<Int>, // Player IDs at rotation risk
-    val emergingOptions: List<Int> // Rising players in position
+    val rotationRisk: List<Int>,
+    val emergingOptions: List<Int>
 )

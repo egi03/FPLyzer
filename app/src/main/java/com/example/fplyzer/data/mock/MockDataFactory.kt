@@ -490,7 +490,7 @@ object MockDataFactory {
             else -> Random.nextInt(2, 6) // Aggressive
         }
 
-        return differentialPlayers.shuffled().take(numPicks).mapIndexed { index, (name, team) ->
+        return differentialPlayers.shuffled().take(numPicks).mapIndexed { index, (name, _) ->
             val points = Random.nextInt(2, 20)
             val outcome = when {
                 points >= 15 -> DifferentialOutcome.MASTER_STROKE

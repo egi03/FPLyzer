@@ -1,31 +1,87 @@
 package com.example.fplyzer.ui.screens.leagueStats.tabs
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.MilitaryTech
+import androidx.compose.material.icons.filled.PauseCircle
+import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.PersonPin
+import androidx.compose.material.icons.filled.SportsScore
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.fplyzer.data.models.statistics.*
-import com.example.fplyzer.ui.components.*
-import com.example.fplyzer.ui.theme.*
-import com.example.fplyzer.ui.screens.leagueStats.*
+import com.example.fplyzer.data.models.statistics.LeagueStatistics
+import com.example.fplyzer.data.models.statistics.ManagerStatistics
+import com.example.fplyzer.ui.components.GradientCard
+import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsUiState
+import com.example.fplyzer.ui.screens.leagueStats.LeagueStatsViewModel
+import com.example.fplyzer.ui.theme.FplAccent
+import com.example.fplyzer.ui.theme.FplAccentDark
+import com.example.fplyzer.ui.theme.FplAccentLight
+import com.example.fplyzer.ui.theme.FplBlue
+import com.example.fplyzer.ui.theme.FplGreen
+import com.example.fplyzer.ui.theme.FplOrange
+import com.example.fplyzer.ui.theme.FplPrimary
+import com.example.fplyzer.ui.theme.FplPrimaryDark
+import com.example.fplyzer.ui.theme.FplRed
+import com.example.fplyzer.ui.theme.FplSecondary
+import com.example.fplyzer.ui.theme.FplYellow
 
 @Composable
 fun HeadToHeadTab(
@@ -44,11 +100,11 @@ fun HeadToHeadTab(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface) // Theme-aware
+                .background(MaterialTheme.colorScheme.surface) 
                 .shadow(
                     elevation = 5.dp,
                     shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
-                    spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f) // Theme-aware
+                    spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f) 
                 )
                 .padding(16.dp)
         ) {
@@ -62,12 +118,12 @@ fun HeadToHeadTab(
                         text = "Head-to-Head Analysis",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurface 
                     )
                     Text(
                         text = "Compare manager performance",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -171,14 +227,14 @@ private fun ManagerSelector(
                 text = "Select Manager",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface 
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             if (selectedManagerId != null) {
                 TextButton(
-                    onClick = { onManagerSelected(-1) } // Clear selection
+                    onClick = { onManagerSelected(-1) }
                 ) {
                     Text("Clear")
                 }
@@ -225,11 +281,11 @@ private fun ManagerChip(
             containerColor = if (isSelected) {
                 FplPrimary
             } else {
-                MaterialTheme.colorScheme.surfaceVariant // Theme-aware
+                MaterialTheme.colorScheme.surfaceVariant 
             }
         ),
         border = if (!isSelected) {
-            BorderStroke(1.dp, MaterialTheme.colorScheme.outline) // Theme-aware
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outline) 
         } else null,
         elevation = CardDefaults.cardElevation(
             defaultElevation = if (isSelected) 8.dp else 2.dp
@@ -264,7 +320,7 @@ private fun ManagerChip(
                     text = manager.managerName.take(2).uppercase(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) FplPrimaryDark else MaterialTheme.colorScheme.onSurface // Theme-aware
+                    color = if (isSelected) FplPrimaryDark else MaterialTheme.colorScheme.onSurface 
                 )
             }
 
@@ -272,7 +328,7 @@ private fun ManagerChip(
                 text = manager.managerName,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface, // Theme-aware
+                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface, 
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
@@ -471,12 +527,12 @@ private fun H2HStatCard(
                     text = title,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Medium,
-                    color = Color.White // Keep white for contrast on colored backgrounds
+                    color = Color.White
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color.White.copy(alpha = 0.8f) // Keep white for contrast
+                    color = Color.White.copy(alpha = 0.8f)
                 )
             }
         }
@@ -548,7 +604,7 @@ private fun H2HRecordCard(
             .fillMaxWidth()
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), 
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
@@ -566,13 +622,13 @@ private fun H2HRecordCard(
                         Text(
                             text = "vs",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                            color = MaterialTheme.colorScheme.onSurfaceVariant 
                         )
                         Text(
                             text = record.opponentName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                            color = MaterialTheme.colorScheme.onSurface 
                         )
                     }
 
@@ -617,7 +673,7 @@ private fun H2HRecordCard(
                     Text(
                         text = "${record.winPercentage.toInt()}% Win Rate",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurfaceVariant 
                     )
                 }
 
@@ -625,7 +681,7 @@ private fun H2HRecordCard(
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant, 
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -635,7 +691,7 @@ private fun H2HRecordCard(
                 Column(
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
-                    Divider(color = MaterialTheme.colorScheme.outlineVariant) // Theme-aware
+                    Divider(color = MaterialTheme.colorScheme.outlineVariant) 
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -656,7 +712,7 @@ private fun H2HRecordCard(
                             Text(
                                 text = "Difference",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                                color = MaterialTheme.colorScheme.onSurfaceVariant 
                             )
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -688,7 +744,6 @@ private fun H2HRecordCard(
                         )
                     }
 
-                    // Recent form or additional stats could go here
                     record.recentResults?.let { results ->
                         Spacer(modifier = Modifier.height(16.dp))
                         RecentFormSection(results = results)
@@ -717,7 +772,7 @@ private fun RecordBadge(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+            color = MaterialTheme.colorScheme.onSurfaceVariant 
         )
     }
 }
@@ -734,7 +789,7 @@ private fun PointsComparison(
         Text(
             text = title,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+            color = MaterialTheme.colorScheme.onSurfaceVariant 
         )
         Text(
             text = value.toString(),
@@ -752,7 +807,7 @@ private fun RecentFormSection(results: List<H2HResult>) {
             text = "Recent Meetings",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface // Theme-aware
+            color = MaterialTheme.colorScheme.onSurface 
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -817,13 +872,13 @@ private fun EmptyH2HState() {
                 text = "Select a Manager",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface 
             )
 
             Text(
                 text = "Choose a manager from the list above to see their head-to-head record against all other managers in the league",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant, 
                 textAlign = TextAlign.Center
             )
 
@@ -850,13 +905,13 @@ private fun InfoRow(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+            tint = MaterialTheme.colorScheme.onSurfaceVariant, 
             modifier = Modifier.size(20.dp)
         )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+            color = MaterialTheme.colorScheme.onSurfaceVariant 
         )
     }
 }
@@ -875,12 +930,12 @@ private fun H2HDetailSheet(
                 Text(
                     text = "${manager.managerName} Stats",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurface 
                 )
                 Text(
                     text = "Detailed H2H Analysis",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurfaceVariant 
                 )
             }
         },
@@ -902,7 +957,7 @@ private fun H2HDetailSheet(
                             text = "Summary",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                            color = MaterialTheme.colorScheme.onSurface 
                         )
 
                         DetailStatRow(
@@ -943,7 +998,7 @@ private fun H2HDetailSheet(
                         text = "All Matchups",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurface 
                     )
                 }
 
@@ -985,7 +1040,7 @@ private fun DetailStatRow(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface 
             )
         }
 
@@ -1003,7 +1058,7 @@ private fun CompactH2HRow(record: H2HRecord) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant) // Theme-aware
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant) 
     ) {
         Row(
             modifier = Modifier
@@ -1015,14 +1070,14 @@ private fun CompactH2HRow(record: H2HRecord) {
             Text(
                 text = record.opponentName,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface, // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface, 
                 modifier = Modifier.weight(1f)
             )
 
             Text(
                 text = "${record.wins}-${record.draws}-${record.losses}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant 
             )
 
             Text(
@@ -1037,7 +1092,6 @@ private fun CompactH2HRow(record: H2HRecord) {
     }
 }
 
-// Data classes and helper functions remain the same...
 data class H2HRecord(
     val opponentId: String,
     val opponentName: String,

@@ -21,7 +21,7 @@ data class WhatIfResult(
     val significantChange: Boolean
 ) {
     val isPositive: Boolean
-        get() = rankChange < 0 // Lower rank number is better
+        get() = rankChange < 0
 }
 
 enum class ScenarioType(val label: String, val icon: String) {

@@ -26,7 +26,7 @@ data class LeagueStatsUiState(
     val leagueStatistics: LeagueStatistics? = null,
     val sortedManagers: List<ManagerStatistics> = emptyList(),
     val currentSortOption: SortingOption = SortingOption.TOTAL_POINTS,
-    val selectedManagerIds: Set<Int> = emptySet(), // For H2H comparison
+    val selectedManagerIds: Set<Int> = emptySet(),
     val playerAnalytics: LeaguePlayerAnalytics? = null,
     val selectedGameweek: Int? = null,
     val selectedPosition: String? = null,
@@ -67,9 +67,8 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
                 val allManagers = mutableListOf<StandingResult>()
                 allManagers.addAll(leagueData.standings.results)
 
-                // Load all pages if there are multiple pages
                 var currentPage = 1
-                while (leagueData.standings.hasNext && currentPage < 10) { // Limit to 10 pages for safety
+                while (leagueData.standings.hasNext && currentPage < 10) {
                     currentPage++
                     val nextPageResult = repository.getLeagueStandings(leagueId, currentPage)
                     if (nextPageResult.isSuccess) {
@@ -77,13 +76,11 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
                     }
                 }
 
-                // Load history for each manager (with error handling for individual failures)
                 val managerStats = allManagers.map { standing ->
                     async {
                         try {
                             loadManagerStatistics(standing.entry)
                         } catch (e: Exception) {
-                            // Skip managers that fail to load
                             null
                         }
                     }
@@ -188,7 +185,7 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
         val teamValue = gameweeks.lastOrNull()?.value ?: 0
         val benchPoints = gameweeks.sumOf { it.pointsOnBench }
 
-        val captainPoints = 0 // Would need additional calculation
+        val captainPoints = 0
 
         val rankHistory = gameweeks.map { it.overallRank }
         val pointsHistory = gameweeks.map { it.points }
@@ -485,7 +482,6 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
                 val teamMap = bootstrap.teams.associateBy { it.id }
                 val positionMap = bootstrap.elementTypes.associateBy { it.id }
 
-                // Fix the type inference by explicitly typing the maps
                 val playerOwnershipMap = mutableMapOf<Int, MutableList<OwnershipInfo>>()
                 val captainMap = mutableMapOf<Int, MutableList<CaptainInfo>>()
 
@@ -549,7 +545,7 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
                 val differentials = playerOwnership
                     .filter { it.isDifferential }
                     .map { ownership ->
-                        DifferentialPick( // This uses the existing statistics DifferentialPick
+                        DifferentialPick(
                             playerId = ownership.playerId,
                             playerName = ownership.playerName,
                             teamName = ownership.teamName,
@@ -683,7 +679,6 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
         loadDifferentialAnalyses()
     }
 
-    // Add a method to refresh what-if data
     fun refreshWhatIfScenarios() {
         _uiState.value = _uiState.value.copy(whatIfScenarios = emptyList())
         loadWhatIfScenarios()
@@ -697,10 +692,8 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
             )
 
             try {
-                // Simulate network delay for realistic demo experience
                 delay(1500)
 
-                // Load mock league statistics
                 val demoStats = MockDataFactory.createMockLeagueStatistics()
 
                 _uiState.value = _uiState.value.copy(
@@ -709,11 +702,10 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
                         demoStats.managerStats.values.toList(),
                         _uiState.value.currentSortOption
                     ),
-                    isFavourite = false, // Demo can't be favourited
+                    isFavourite = false,
                     isLoading = false
                 )
 
-                // Pre-load demo data for other tabs
                 loadDemoPlayerAnalytics()
                 loadDemoDifferentialAnalyses()
                 loadDemoWhatIfScenarios()
@@ -731,7 +723,7 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
         _uiState.value = _uiState.value.copy(isLoadingPlayers = true)
 
         try {
-            delay(500) // Simulate some loading time
+            delay(500)
             val demoPlayerAnalytics = MockDataFactory.createMockPlayerAnalytics()
 
             _uiState.value = _uiState.value.copy(
@@ -750,7 +742,7 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
         _uiState.value = _uiState.value.copy(isLoadingDifferentials = true)
 
         try {
-            delay(800) // Simulate analysis time
+            delay(800)
             val demoAnalyses = MockDataFactory.createMockDifferentialAnalyses()
 
             _uiState.value = _uiState.value.copy(
@@ -768,7 +760,7 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
         _uiState.value = _uiState.value.copy(isLoadingWhatIf = true)
 
         try {
-            delay(600) // Simulate scenario generation time
+            delay(600)
             val demoScenarios = MockDataFactory.createMockWhatIfScenarios()
 
             _uiState.value = _uiState.value.copy(
@@ -783,7 +775,6 @@ class LeagueStatsViewModel(application: Application): AndroidViewModel(applicati
     }
 }
 
-// Helper data classes
 private data class OwnershipInfo(
     val managerId: Int,
     val isStarting: Boolean

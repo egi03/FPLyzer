@@ -88,7 +88,7 @@ fun FplNavigation() {
 
         composable("demo_league") {
             LeagueStatsScreen(
-                leagueId = 999999, // Demo league ID
+                leagueId = 999999,
                 isDemo = true,
                 onNavigateBack = {
                     navController.popBackStack()

@@ -71,8 +71,6 @@ import com.example.fplyzer.ui.theme.FplGreen
 import com.example.fplyzer.ui.theme.FplOrange
 import com.example.fplyzer.ui.theme.FplPink
 import com.example.fplyzer.ui.theme.FplRed
-import com.example.fplyzer.ui.theme.FplSurface
-import com.example.fplyzer.ui.theme.FplTextSecondary
 import com.example.fplyzer.ui.theme.FplYellow
 
 @Composable
@@ -93,10 +91,10 @@ fun ChipsTab(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface) // Theme-aware
+                .background(MaterialTheme.colorScheme.surface) 
                 .shadow(
                     elevation = 5.dp,
-                    spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f) // Theme-aware
+                    spotColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f) 
                 )
                 .padding(16.dp)
         ) {
@@ -110,12 +108,12 @@ fun ChipsTab(
                         text = "Chip Analysis",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurface 
                     )
                     Text(
                         text = "Special power usage and effectiveness",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurfaceVariant 
                     )
                 }
 
@@ -189,7 +187,7 @@ fun ChipsTab(
                     text = "Individual Usage",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface, // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurface, 
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
             }
@@ -264,7 +262,7 @@ private fun ChipButton(
             .animateContentSize(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) chip.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant // Theme-aware
+            containerColor = if (isSelected) chip.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant 
         ),
         border = if (isSelected) BorderStroke(2.dp, chip.color) else null
     ) {
@@ -313,7 +311,7 @@ private fun ChipButton(
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface, // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurface, 
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -326,7 +324,7 @@ private fun ChipButton(
                     Text(
                         text = "$count/$totalPossible",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurfaceVariant, 
                         textAlign = TextAlign.Center
                     )
                     Text(
@@ -340,7 +338,7 @@ private fun ChipButton(
                 Text(
                     text = "Not used",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurfaceVariant, 
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -404,7 +402,7 @@ private fun OverviewStat(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), // Theme-aware
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant), 
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
@@ -483,7 +481,7 @@ private fun ChipOverviewCard(
 
     GradientCard(
         modifier = Modifier.fillMaxWidth(),
-        gradientColors = listOf(chipType.color.copy(alpha = 0.15f), MaterialTheme.colorScheme.surface), // Theme-aware
+        gradientColors = listOf(chipType.color.copy(alpha = 0.15f), MaterialTheme.colorScheme.surface), 
         shape = MaterialTheme.shapes.large
     ) {
         Column(
@@ -505,12 +503,12 @@ private fun ChipOverviewCard(
                         text = chipType.displayName,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurface 
                     )
                     Text(
                         text = chipStrategy,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurfaceVariant 
                     )
                 }
             }
@@ -560,7 +558,7 @@ private fun StatBox(
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface) // Theme-aware
+            .background(MaterialTheme.colorScheme.surface) 
             .border(
                 width = 1.dp,
                 color = color.copy(alpha = 0.2f),
@@ -572,7 +570,7 @@ private fun StatBox(
         Text(
             text = title,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+            color = MaterialTheme.colorScheme.onSurfaceVariant 
         )
 
         Text(
@@ -585,7 +583,7 @@ private fun StatBox(
         Text(
             text = subtitle,
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+            color = MaterialTheme.colorScheme.onSurfaceVariant, 
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -609,8 +607,8 @@ private fun ChipTimelineView(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
-        elevation = CardDefaults.cardElevation(2.dp) // Added slight elevation
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), 
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -624,14 +622,14 @@ private fun ChipTimelineView(
                     text = "Usage Timeline",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurface 
                 )
 
                 if (popularGameweeks.isNotEmpty()) {
                     Text(
                         text = "Popular: GW${popularGameweeks.map { it.key }.joinToString(", ")}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurfaceVariant 
                     )
                 }
             }
@@ -643,7 +641,7 @@ private fun ChipTimelineView(
                     .fillMaxWidth()
                     .height(100.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant) // Theme-aware
+                    .background(MaterialTheme.colorScheme.surfaceVariant) 
                     .padding(8.dp)
             ) {
                 Row(
@@ -688,8 +686,8 @@ private fun ChipQualityDistribution(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
-        elevation = CardDefaults.cardElevation(2.dp) // Added slight elevation
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), 
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -698,7 +696,7 @@ private fun ChipQualityDistribution(
                 text = "Usage Quality Distribution",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface 
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -733,7 +731,7 @@ private fun QualityBar(
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface, // Theme-aware
+            color = MaterialTheme.colorScheme.onSurface, 
             modifier = Modifier.width(100.dp)
         )
 
@@ -746,7 +744,7 @@ private fun QualityBar(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant) // Theme-aware
+                    .background(MaterialTheme.colorScheme.surfaceVariant) 
             )
 
             val animatedPercentage by animateFloatAsState(
@@ -786,7 +784,6 @@ private fun ChipUsageCard(
 ) {
     val effectiveness = calculateEffectiveness(usage, chipType, averageScore)
     val performanceMessage = getPerformanceMessage(usage, chipType, effectiveness)
-    val timingQuality = getTimingQuality(usage, chipType)
 
     Card(
         onClick = onTap,
@@ -794,7 +791,7 @@ private fun ChipUsageCard(
             .fillMaxWidth()
             .animateContentSize(),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), // Theme-aware
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), 
         elevation = CardDefaults.cardElevation(0.dp),
         border = BorderStroke(
             width = 1.dp,
@@ -831,7 +828,7 @@ private fun ChipUsageCard(
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                        color = MaterialTheme.colorScheme.onSurface 
                     )
 
                     Row(
@@ -845,12 +842,12 @@ private fun ChipUsageCard(
                                 Icons.Default.Person,
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant 
                             )
                             Text(
                                 text = manager.managerName,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                                color = MaterialTheme.colorScheme.onSurfaceVariant 
                             )
                         }
 
@@ -862,21 +859,15 @@ private fun ChipUsageCard(
                                 Icons.Default.CalendarToday,
                                 contentDescription = null,
                                 modifier = Modifier.size(14.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant 
                             )
                             Text(
                                 text = "GW ${usage.event}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                                color = MaterialTheme.colorScheme.onSurfaceVariant 
                             )
                         }
                     }
-
-                    Text(
-                        text = timingQuality,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = chipType.color
-                    )
                 }
 
                 Column(
@@ -895,7 +886,7 @@ private fun ChipUsageCard(
                         Text(
                             text = getDisplayValue(usage, chipType).second,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, 
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                     }
@@ -929,7 +920,7 @@ private fun ChipUsageCard(
                     usage.captainName?.let { captainName ->
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant // Theme-aware
+                            color = MaterialTheme.colorScheme.outlineVariant 
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -949,7 +940,7 @@ private fun ChipUsageCard(
                                     text = "Captain: $captainName",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                                    color = MaterialTheme.colorScheme.onSurface 
                                 )
                             }
 
@@ -967,7 +958,7 @@ private fun ChipUsageCard(
                     usage.benchBoost?.let { benchPoints ->
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant // Theme-aware
+                            color = MaterialTheme.colorScheme.outlineVariant 
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -987,7 +978,7 @@ private fun ChipUsageCard(
                                     text = "Bench Contribution",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                                    color = MaterialTheme.colorScheme.onSurface 
                                 )
                             }
 
@@ -1027,13 +1018,13 @@ private fun EmptyChipView(chipType: ChipType) {
             Text(
                 text = "No ${chipType.displayName} used yet",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant 
             )
 
             Text(
                 text = "This chip hasn't been played by any manager in the league",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant, // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant, 
                 textAlign = TextAlign.Center
             )
         }
@@ -1048,7 +1039,7 @@ private fun ChipsInfoSheet(onDismiss: () -> Unit) {
             Text(
                 text = "Understanding Chips",
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface 
             )
         },
         text = {
@@ -1071,7 +1062,7 @@ private fun ChipsInfoSheet(onDismiss: () -> Unit) {
                             text = "Timing Tips",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                            color = MaterialTheme.colorScheme.onSurface 
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -1082,7 +1073,7 @@ private fun ChipsInfoSheet(onDismiss: () -> Unit) {
                                 • Wildcard: Use when your team needs major surgery
                             """.trimIndent(),
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                            color = MaterialTheme.colorScheme.onSurfaceVariant 
                         )
                     }
                 }
@@ -1113,12 +1104,12 @@ private fun ChipExplanation(chipType: ChipType) {
             Text(
                 text = chipType.displayName,
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface 
             )
             Text(
                 text = chipType.description,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant 
             )
             Text(
                 text = chipType.scoreRanges,
@@ -1129,10 +1120,6 @@ private fun ChipExplanation(chipType: ChipType) {
     }
 }
 
-// Data classes and helper functions remain the same...
-// (ChipUsage, ChipStatistics, ChipType, ChipEffectiveness, and helper functions)
-
-// [Rest of the existing data classes and helper functions would remain unchanged]
 data class ChipUsage(
     val id: String = "",
     val event: Int,
@@ -1199,7 +1186,6 @@ data class ChipEffectiveness(
     }
 }
 
-// Helper functions remain the same...
 private fun getChipUsageByType(stats: LeagueStatistics): Map<ChipType, List<Pair<Int, ChipUsage>>> {
     val usageMap = mutableMapOf<ChipType, MutableList<Pair<Int, ChipUsage>>>()
 
@@ -1217,7 +1203,7 @@ private fun getChipUsageByType(stats: LeagueStatistics): Map<ChipType, List<Pair
                 val usage = ChipUsage(
                     event = chip.event,
                     points = manager.pointsHistory.getOrNull(chip.event - 1) ?: 0,
-                    // Additional data would be populated from actual API
+                    // TODO: Additional data would be populated from actual API
                 )
                 usageMap.getOrPut(it) { mutableListOf() }.add(managerId to usage)
             }
@@ -1228,7 +1214,7 @@ private fun getChipUsageByType(stats: LeagueStatistics): Map<ChipType, List<Pair
 }
 
 private fun calculateUnusedChips(stats: LeagueStatistics): Int {
-    val totalPossibleChips = stats.managerStats.size * 4 // 4 chips per manager
+    val totalPossibleChips = stats.managerStats.size * 4
     val usedChips = stats.managerStats.values.sumOf { it.chipsUsed.size }
     return totalPossibleChips - usedChips
 }
@@ -1249,8 +1235,6 @@ private fun calculateEffectiveness(
 ): ChipEffectiveness {
     return when (chipType) {
         ChipType.TRIPLE_CAPTAIN -> {
-            // For triple captain, we estimate captain points from total points
-            // Assuming captain got roughly 1/3 of total points (since they're tripled)
             val estimatedCaptainPoints = usage.captainActualPoints ?: (usage.points / 3)
             when {
                 estimatedCaptainPoints >= 15 -> ChipEffectiveness.EXCELLENT
@@ -1260,10 +1244,7 @@ private fun calculateEffectiveness(
             }
         }
         ChipType.BENCH_BOOST -> {
-            // For bench boost, estimate bench contribution
-            // If benchBoost data isn't available, estimate from total points vs average
             val benchContribution = usage.benchBoost ?: run {
-                // Estimate bench contribution as points above average
                 val pointsAboveAverage = usage.points - averageScore
                 maxOf(0, pointsAboveAverage.toInt())
             }
@@ -1275,7 +1256,6 @@ private fun calculateEffectiveness(
             }
         }
         ChipType.FREE_HIT -> {
-            // For free hit, compare against average and adjust thresholds
             when {
                 usage.points >= averageScore * 1.4 -> ChipEffectiveness.EXCELLENT
                 usage.points >= averageScore * 1.15 -> ChipEffectiveness.GOOD
@@ -1284,8 +1264,6 @@ private fun calculateEffectiveness(
             }
         }
         ChipType.WILDCARD -> {
-            // For wildcard, the effect might be spread over multiple weeks
-            // For now, just compare against average with adjusted thresholds
             when {
                 usage.points >= averageScore * 1.3 -> ChipEffectiveness.EXCELLENT
                 usage.points >= averageScore * 1.1 -> ChipEffectiveness.GOOD
@@ -1320,38 +1298,10 @@ private fun getPerformanceMessage(
     }
 }
 
-private fun getTimingQuality(usage: ChipUsage, chipType: ChipType): String {
-    return when (chipType) {
-        ChipType.TRIPLE_CAPTAIN -> {
-            val captainPoints = usage.captainActualPoints ?: 0
-            when {
-                captainPoints >= 15 -> "Perfect captain choice!"
-                captainPoints >= 10 -> "Good captain pick"
-                captainPoints >= 6 -> "Decent captain"
-                else -> "Captain let you down"
-            }
-        }
-        ChipType.BENCH_BOOST -> {
-            val benchPoints = usage.benchBoost ?: 0
-            when {
-                benchPoints >= 25 -> "Amazing bench!"
-                benchPoints >= 18 -> "Strong bench"
-                benchPoints >= 12 -> "Decent bench"
-                else -> "Weak bench"
-            }
-        }
-        else -> when {
-            usage.points > 80 -> "Excellent week!"
-            usage.points > 60 -> "Good choice"
-            else -> "Tough week"
-        }
-    }
-}
-
 private fun getDisplayValue(usage: ChipUsage, chipType: ChipType): Pair<String, String> {
     return when (chipType) {
         ChipType.TRIPLE_CAPTAIN -> {
-            usage.captainActualPoints?.let { "${it}" to "captain pts" }
+            usage.captainActualPoints?.let { "$it" to "captain pts" }
                 ?: ("${usage.points}" to "total pts")
         }
         ChipType.BENCH_BOOST -> {

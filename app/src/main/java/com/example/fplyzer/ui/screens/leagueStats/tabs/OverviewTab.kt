@@ -66,7 +66,7 @@ fun OverviewTab(
                 text = "Manager Rankings",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 

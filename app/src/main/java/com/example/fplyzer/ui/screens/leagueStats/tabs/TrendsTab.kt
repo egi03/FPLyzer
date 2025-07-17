@@ -46,7 +46,6 @@ private enum class ChartType(val displayName: String) {
     LEAGUE_RANK("League Rank")
 }
 
-// Comprehensive color palette for managers
 private val managerColors = listOf(
     FplBlue,
     FplGreen,
@@ -70,16 +69,12 @@ private val managerColors = listOf(
     Color(0xFFFF5722)  // Deep Orange
 )
 
-/**
- * Get a consistent color for a manager based on their ID
- */
+
 private fun getManagerColor(managerId: Int): Color {
     return managerColors[managerId % managerColors.size]
 }
 
-/**
- * Create a color map for the selected managers
- */
+
 private fun createColorMap(
     selectedManagerIds: List<Int>
 ): List<Color> {
@@ -96,7 +91,6 @@ fun TrendsTab(
     var chartType by remember { mutableStateOf(ChartType.CUMULATIVE_POINTS) }
     var showLimitMessage by remember { mutableStateOf(false) }
 
-    // Auto-hide the limit message after 3 seconds
     LaunchedEffect(showLimitMessage) {
         if (showLimitMessage) {
             delay(3000)
@@ -104,7 +98,6 @@ fun TrendsTab(
         }
     }
 
-    // Create a mapping from manager names to IDs for color consistency
     val managerNameToId = remember(stats) {
         stats.managerStats.values.associate { it.managerName to it.managerId }
     }
@@ -112,7 +105,6 @@ fun TrendsTab(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Chart type selector
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -147,7 +139,7 @@ fun TrendsTab(
                     text = "Select Managers",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                    color = MaterialTheme.colorScheme.onSurface 
                 )
 
                 Row(
@@ -157,7 +149,7 @@ fun TrendsTab(
                     Text(
                         text = "${selectedMembers.size}/5 selected",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (selectedMembers.size >= 5) FplOrange else MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                        color = if (selectedMembers.size >= 5) FplOrange else MaterialTheme.colorScheme.onSurfaceVariant 
                     )
 
                     if (selectedMembers.isNotEmpty()) {
@@ -248,7 +240,7 @@ fun TrendsTab(
         } else {
             val selectedManagerData = stats.managerStats.values
                 .filter { selectedMembers.contains(it.managerName) }
-                .sortedBy { it.managerId } // Sort for consistent ordering
+                .sortedBy { it.managerId }
 
             val chartColors = selectedManagerData.map { getManagerColor(it.managerId) }
 
@@ -269,7 +261,7 @@ fun TrendsTab(
                     )
                 }
                 ChartType.RANK_PROGRESSION -> {
-                    val data = selectedManagerData.associate { it.managerId to it.rankHistory.map { -it } } // Negative for chart display
+                    val data = selectedManagerData.associate { it.managerId to it.rankHistory.map { -it } }
 
                     LineChart(
                         data = data,
@@ -313,17 +305,16 @@ private fun MemberChip(
     val backgroundColor = when {
         isSelected -> color
         enabled -> color.copy(alpha = 0.2f)
-        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f) // Theme-aware
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f) 
     }
 
     val textColor = when {
         isSelected -> Color.White
         enabled -> color
-        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) // Theme-aware
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) 
     }
 
     Surface(
-        onClick = onClick, // Simplified - always pass the onClick, handle logic in parent
         shape = RoundedCornerShape(50),
         color = backgroundColor,
         modifier = Modifier.animateContentSize()
@@ -360,26 +351,23 @@ private fun EmptyChartView() {
                 imageVector = Icons.Default.ShowChart,
                 contentDescription = null,
                 modifier = Modifier.size(60.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) // Theme-aware
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) 
             )
             Text(
                 text = "Select up to 5 managers to view trends",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant 
             )
             Text(
                 text = "Choose managers from the list above to compare their performance",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f) // Theme-aware
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f) 
             )
         }
     }
 }
 
-/**
- * Calculate league rank progression for each manager based on their cumulative points
- * within this specific league over time
- */
+
 private fun calculateLeagueRankProgression(stats: com.example.fplyzer.data.models.statistics.LeagueStatistics): Map<Int, List<Int>> {
     val managers = stats.managerStats.values.toList()
 
@@ -388,14 +376,11 @@ private fun calculateLeagueRankProgression(stats: com.example.fplyzer.data.model
     val maxGameweeks = managers.maxOfOrNull { it.pointsHistory.size } ?: 0
     val leagueRanks = mutableMapOf<Int, MutableList<Int>>()
 
-    // Initialize rank lists for each manager
     managers.forEach { manager ->
         leagueRanks[manager.managerId] = mutableListOf()
     }
 
-    // For each gameweek, calculate league ranks based on cumulative points
     for (gameweek in 1..maxGameweeks) {
-        // Calculate cumulative points for each manager up to this gameweek
         val managerCumulativePoints = managers.mapNotNull { manager ->
             val cumulativePoints = manager.pointsHistory.take(gameweek).sum()
             if (gameweek <= manager.pointsHistory.size) {
@@ -403,7 +388,6 @@ private fun calculateLeagueRankProgression(stats: com.example.fplyzer.data.model
             } else null
         }
 
-        // Sort by cumulative points (descending) and assign league ranks
         val sortedManagers = managerCumulativePoints.sortedByDescending { it.second }
 
         sortedManagers.forEachIndexed { index, (managerId, _) ->
@@ -411,7 +395,6 @@ private fun calculateLeagueRankProgression(stats: com.example.fplyzer.data.model
             leagueRanks[managerId]?.add(rank)
         }
 
-        // For managers who haven't played this gameweek, maintain their previous rank
         managers.forEach { manager ->
             if (gameweek > manager.pointsHistory.size) {
                 val previousRank = leagueRanks[manager.managerId]?.lastOrNull() ?: managers.size

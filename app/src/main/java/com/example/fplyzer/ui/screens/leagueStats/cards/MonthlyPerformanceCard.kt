@@ -38,7 +38,6 @@ fun MonthlyPerformanceCard(stats: LeagueStatistics?) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // This would need actual monthly data
                 Text(
                     text = "Coming soon...",
                     style = MaterialTheme.typography.bodyMedium,

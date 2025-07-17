@@ -1,5 +1,6 @@
 package com.example.fplyzer.ui.screens.home
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -42,7 +43,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,7 +65,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -74,9 +73,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fplyzer.data.models.FavouriteLeague
-import com.example.fplyzer.ui.components.GlassmorphicCard
 import com.example.fplyzer.ui.components.ModernButton
-import com.example.fplyzer.ui.theme.*
+import com.example.fplyzer.ui.theme.FplYellow
+import com.example.fplyzer.ui.theme.LocalThemeManager
+import com.example.fplyzer.ui.theme.SettingsButton
+import com.example.fplyzer.ui.theme.ThemeSelectionSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -517,6 +518,7 @@ private fun FavouriteLeaguesSection(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun FavouriteLeagueCard(
     league: FavouriteLeague,

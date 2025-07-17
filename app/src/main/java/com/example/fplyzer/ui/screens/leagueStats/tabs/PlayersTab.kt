@@ -75,7 +75,7 @@ fun PlayersTab(
             val templatePlayers = playerAnalytics.playerOwnership.filter { it.isTemplate }
             val templateOwnership = uiState.leagueStatistics?.managerStats?.values?.count { manager ->
                 // Check if manager has all template players
-                true // This would need actual calculation
+                true // todo: CALCULATE
             }?.toDouble()?.div(uiState.leagueStatistics.managerStats.size) ?: 0.0
 
             TemplateTeamCard(
@@ -98,20 +98,19 @@ fun PlayersTab(
                 text = "Most Captained",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
         items(playerAnalytics.captaincy.take(5)) { captaincy ->
             CaptaincyCard(captaincy)
         }
 
-        // All players by ownership
         item {
             Text(
                 text = "All Players by Ownership",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface // Theme-aware
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 

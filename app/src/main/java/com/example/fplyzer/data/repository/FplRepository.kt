@@ -169,11 +169,10 @@ class FplRepository {
                     }
                 }
 
-                // Create actual differential analyses
+                // Create differential analyses
                 val analyses = managerTeams.map { (managerId, teams) ->
                     val manager = managers.find { it.entry == managerId }!!
 
-                    // Find actual differential picks
                     val differentialModelPicks = mutableListOf<DifferentialModelPick>()
 
                     teams.forEach { (gameweek, team) ->
@@ -184,15 +183,12 @@ class FplRepository {
                                 val leagueOwnershipPct = (leagueOwn.toDouble() / totalManagers) * 100
                                 val globalOwnershipPct = player.selectedByPercent.toDoubleOrNull() ?: 0.0
 
-                                // Consider it a differential if owned by <50% of league AND <20% globally
                                 if (leagueOwnershipPct < 50.0 && globalOwnershipPct < 20.0) {
-                                    // Calculate actual points for this gameweek
                                     val actualPoints = if (gameweek == currentGameweek) {
                                         player.eventPoints
                                     } else {
-                                        // For past gameweeks, we'd need historical data
-                                        // For now, use a portion of total points
-                                        player.totalPoints / 20 // Rough estimate
+                                        // TODO: For past gameweeks, we'd need historical data
+                                        player.totalPoints / 20
                                     }
 
                                     val outcome = when {
@@ -203,27 +199,20 @@ class FplRepository {
                                         else -> DifferentialOutcome.DISASTER
                                     }
 
-                                    // Check if we already have this player
                                     val existingPickIndex = differentialModelPicks.indexOfFirst { it.player.id == player.id }
                                     if (existingPickIndex != -1) {
-                                        // Update existing pick
                                         val existingPick = differentialModelPicks[existingPickIndex]
                                         val updatedPointsScored = existingPick.pointsScored + actualPoints
                                         val updatedGameweeks = existingPick.gameweeksPicked + gameweek
 
-                                        // Recalculate differential score with updated points
                                         val updatedDifferentialScore = updatedPointsScored * (1 - leagueOwnershipPct / 100)
 
                                         differentialModelPicks[existingPickIndex] = existingPick.copy(
                                             gameweeksPicked = updatedGameweeks,
                                             pointsScored = updatedPointsScored,
-                                            differentialScore = updatedDifferentialScore // ✅ Now properly updated!
+                                            differentialScore = updatedDifferentialScore
                                         )
-
-                                        // Debug logging (remove in production)
-                                        println("Updated differential: ${player.webName} - Points: $updatedPointsScored, Score: $updatedDifferentialScore")
                                     } else {
-                                        // Add new differential pick
                                         differentialModelPicks.add(
                                             DifferentialModelPick(
                                                 id = "diff_${managerId}_${player.id}",
@@ -256,8 +245,6 @@ class FplRepository {
                                             )
                                         )
 
-                                        // Debug logging (remove in production)
-                                        println("New differential: ${player.webName} - Points: $actualPoints, Score: ${actualPoints * (1 - leagueOwnershipPct / 100)}")
                                     }
 
                                 }
@@ -344,7 +331,6 @@ class FplRepository {
     ): Result<List<WhatIfScenario>> {
         return withContext(Dispatchers.IO) {
             try {
-                // Get league standings first
                 val leagueResult = getLeagueStandings(leagueId)
                 if (leagueResult.isFailure) {
                     return@withContext Result.failure(leagueResult.exceptionOrNull()!!)
@@ -353,7 +339,6 @@ class FplRepository {
                 val leagueData = leagueResult.getOrNull()!!
                 val managers = leagueData.standings.results
 
-                // Get bootstrap static data for player info
                 val bootstrapResult = getBootstrapStatic()
                 if (bootstrapResult.isFailure) {
                     return@withContext Result.failure(bootstrapResult.exceptionOrNull()!!)
@@ -362,13 +347,10 @@ class FplRepository {
                 val bootstrap = bootstrapResult.getOrNull()!!
                 val allPlayers = bootstrap.elements.associateBy { it.id }
 
-                // Analyze last 5 gameweeks for simplicity
                 val gameweeksToAnalyze = maxOf(1, currentGameweek - 4)..currentGameweek
 
-                // Create some sample scenarios based on available data
                 val scenarios = mutableListOf<WhatIfScenario>()
 
-                // Captain Choice Scenarios
                 gameweeksToAnalyze.forEach { gw ->
                     try {
                         val managerTeams = managers.take(5).mapNotNull { manager ->
@@ -379,7 +361,6 @@ class FplRepository {
                         }
 
                         if (managerTeams.isNotEmpty()) {
-                            // Find most captained player
                             val captainCounts = mutableMapOf<Int, Int>()
                             managerTeams.forEach { (_, team) ->
                                 team.picks.find { it.isCaptain }?.let { captain ->
@@ -391,9 +372,8 @@ class FplRepository {
                             if (mostCaptained != null && mostCaptained.value > 1) {
                                 val player = allPlayers[mostCaptained.key]
                                 if (player != null) {
-                                    // Create a simple scenario
                                     val results = managers.mapIndexed { index, manager ->
-                                        val hadOptimalCaptain = (0..1).random() == 1 // Simulate
+                                        val hadOptimalCaptain = (0..1).random() == 1
                                         val rankChange = if (hadOptimalCaptain) {
                                             (-3..3).random()
                                         } else {
@@ -406,7 +386,7 @@ class FplRepository {
                                             originalRank = index + 1,
                                             newRank = (index + 1 + rankChange).coerceIn(1, managers.size),
                                             rankChange = rankChange,
-                                            pointsChange = rankChange * -2, // Negative because lower rank is better
+                                            pointsChange = rankChange * -2,
                                             improvement = rankChange < 0,
                                             significantChange = kotlin.math.abs(rankChange) >= 3
                                         )
@@ -440,7 +420,6 @@ class FplRepository {
                     }
                 }
 
-                // Add a simple chip timing scenario
                 try {
                     val chipResults = managers.mapIndexed { index, manager ->
                         val pointsGained = (10..40).random()
@@ -456,7 +435,7 @@ class FplRepository {
                             improvement = rankChange < 0,
                             significantChange = pointsGained >= 25
                         )
-                    }.filter { it.pointsChange > 15 } // Only show meaningful changes
+                    }.filter { it.pointsChange > 15 }
 
                     if (chipResults.isNotEmpty()) {
                         val chipImpact = ScenarioImpact(

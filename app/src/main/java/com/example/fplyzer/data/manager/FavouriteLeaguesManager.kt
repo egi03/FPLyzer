@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.example.fplyzer.data.models.FavouriteLeague
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import androidx.core.content.edit
 
 class FavouriteLeaguesManager(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("fpl_favourites", Context.MODE_PRIVATE)
@@ -24,12 +25,10 @@ class FavouriteLeaguesManager(context: Context) {
     fun addFavouriteLeague(league: FavouriteLeague): Boolean {
         val currentFavourites = getFavouriteLeagues().toMutableList()
 
-        // Check if already exists
         if (currentFavourites.any { it.id == league.id }) {
             return false
         }
 
-        // Check if we've reached the limit
         if (currentFavourites.size >= MAX_FAVOURITES) {
             return false
         }
@@ -50,27 +49,16 @@ class FavouriteLeaguesManager(context: Context) {
         return removed
     }
 
-    fun updateFavouriteLeague(league: FavouriteLeague): Boolean {
-        val currentFavourites = getFavouriteLeagues().toMutableList()
-        val index = currentFavourites.indexOfFirst { it.id == league.id }
-
-        if (index == -1) return false
-
-        currentFavourites[index] = league
-        saveFavourites(currentFavourites)
-        return true
-    }
-
     fun isFavourite(leagueId: Int): Boolean {
         return getFavouriteLeagues().any { it.id == leagueId }
     }
 
     private fun saveFavourites(favourites: List<FavouriteLeague>) {
         val jsonString = gson.toJson(favourites)
-        prefs.edit().putString(KEY_FAVOURITE_LEAGUES, jsonString).apply()
+        prefs.edit { putString(KEY_FAVOURITE_LEAGUES, jsonString) }
     }
 
     fun clearAllFavourites() {
-        prefs.edit().remove(KEY_FAVOURITE_LEAGUES).apply()
+        prefs.edit { remove(KEY_FAVOURITE_LEAGUES) }
     }
 }

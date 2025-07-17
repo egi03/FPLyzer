@@ -2,8 +2,6 @@ package com.example.fplyzer.ui.theme
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

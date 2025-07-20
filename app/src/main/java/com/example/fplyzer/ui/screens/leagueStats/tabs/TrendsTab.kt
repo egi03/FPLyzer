@@ -305,16 +305,19 @@ private fun MemberChip(
     val backgroundColor = when {
         isSelected -> color
         enabled -> color.copy(alpha = 0.2f)
-        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f) 
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
     }
 
     val textColor = when {
         isSelected -> Color.White
         enabled -> color
-        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f) 
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     }
 
+    val handleClick: () -> Unit = (if (enabled) onClick else { }) as () -> Unit
+
     Surface(
+        onClick = handleClick,
         shape = RoundedCornerShape(50),
         color = backgroundColor,
         modifier = Modifier.animateContentSize()

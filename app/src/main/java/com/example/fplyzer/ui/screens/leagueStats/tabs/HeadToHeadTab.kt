@@ -150,7 +150,9 @@ fun HeadToHeadTab(
             ManagerSelector(
                 managers = stats.managerStats.values.toList(),
                 selectedManagerId = selectedManagerId,
-                onManagerSelected = { selectedManagerId = it }
+                onManagerSelected = { managerId ->
+                    selectedManagerId = if (managerId == -1) null else managerId
+                }
             )
         }
 

@@ -234,8 +234,6 @@ private fun WhatIfHeaderCard(
                     onClick = onInfoClick,
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)) 
                 ) {
                     Icon(
                         Icons.Default.Info,

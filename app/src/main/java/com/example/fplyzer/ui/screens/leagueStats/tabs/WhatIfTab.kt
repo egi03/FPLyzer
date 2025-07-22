@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -211,41 +212,67 @@ private fun WhatIfHeaderCard(
         Column(
             modifier = Modifier.padding(20.dp)
         ) {
+            Column {
+                Text(
+                    text = "WHAT-IF SCENARIOS",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = FplAccentLight,
+                    letterSpacing = 2.sp
+                )
+                Text(
+                    text = "Explore alternative timelines",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            fun getStabilityColor(rating: Double): Color {
+                return when {
+                    rating >= 80 -> FplGreen
+                    rating >= 60 -> FplBlue
+                    rating >= 40 -> FplOrange
+                    else -> FplRed
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                horizontalArrangement = Arrangement.Center
             ) {
-                Column {
-                    Text(
-                        text = "WHAT-IF SCENARIOS",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = FplAccentLight,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "Explore alternative timelines",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onSurface, 
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                IconButton(
+                Card(
                     onClick = onInfoClick,
-                    modifier = Modifier
-                        .size(40.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = FplAccent.copy(alpha = 0.1f)
+                    ),
+                    border = BorderStroke(1.dp, FplAccent.copy(alpha = 0.3f))
                 ) {
-                    Icon(
-                        Icons.Default.Info,
-                        contentDescription = "Info",
-                        tint = FplAccent
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.QuestionMark,
+                            contentDescription = "Info",
+                            tint = FplAccent,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "What are these scenarios?",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = FplAccent,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Summary Stats
             if (summary != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -290,7 +317,7 @@ private fun WhatIfHeaderCard(
                             text = "League Stability",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface 
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = summary.stabilityDescription,
@@ -312,13 +339,12 @@ private fun WhatIfHeaderCard(
                             Text(
                                 text = "Most volatile",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant 
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
             } else {
-                // Placeholder when no data
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -567,7 +593,6 @@ private fun WhatIfScenarioCard(
                             }
                         }
 
-                        // All Results (top 10)
                         if (scenario.results.size > 2) {
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)

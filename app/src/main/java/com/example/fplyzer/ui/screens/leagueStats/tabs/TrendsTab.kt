@@ -139,7 +139,7 @@ fun TrendsTab(
                     text = "Select Managers",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface 
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(
@@ -149,7 +149,7 @@ fun TrendsTab(
                     Text(
                         text = "${selectedMembers.size}/5 selected",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (selectedMembers.size >= 5) FplOrange else MaterialTheme.colorScheme.onSurfaceVariant 
+                        color = if (selectedMembers.size >= 5) FplOrange else MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     if (selectedMembers.isNotEmpty()) {
@@ -242,52 +242,78 @@ fun TrendsTab(
                 .filter { selectedMembers.contains(it.managerName) }
                 .sortedBy { it.managerId }
 
-            val chartColors = selectedManagerData.map { getManagerColor(it.managerId) }
+            // Ensure we have valid data before creating charts
+            if (selectedManagerData.isNotEmpty()) {
+                val chartColors = selectedManagerData.map { getManagerColor(it.managerId) }
 
-            when (chartType) {
-                ChartType.CUMULATIVE_POINTS -> {
-                    val data = selectedManagerData.associate { manager ->
-                        manager.managerId to manager.pointsHistory.runningFold(0) { acc, points -> acc + points }.drop(1)
+                when (chartType) {
+                    ChartType.CUMULATIVE_POINTS -> {
+                        val data = selectedManagerData.mapNotNull { manager ->
+                            if (manager.pointsHistory.isNotEmpty()) {
+                                val cumulativePoints = manager.pointsHistory.runningFold(0) { acc, points -> acc + points }.drop(1)
+                                manager.managerId to cumulativePoints
+                            } else {
+                                null
+                            }
+                        }.toMap()
+
+                        if (data.isNotEmpty()) {
+                            LineChart(
+                                data = data,
+                                labels = stats.managerStats.mapValues { it.value.managerName },
+                                title = "Cumulative Points",
+                                colors = chartColors,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
                     }
+                    ChartType.RANK_PROGRESSION -> {
+                        val data = selectedManagerData.mapNotNull { manager ->
+                            if (manager.rankHistory.isNotEmpty()) {
+                                manager.managerId to manager.rankHistory.map { -it }
+                            } else {
+                                null
+                            }
+                        }.toMap()
 
-                    LineChart(
-                        data = data,
-                        labels = stats.managerStats.mapValues { it.value.managerName },
-                        title = "Cumulative Points",
-                        colors = chartColors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-                ChartType.RANK_PROGRESSION -> {
-                    val data = selectedManagerData.associate { it.managerId to it.rankHistory.map { -it } }
-
-                    LineChart(
-                        data = data,
-                        labels = stats.managerStats.mapValues { it.value.managerName },
-                        title = "Overall Rank Progression",
-                        colors = chartColors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
-                }
-                ChartType.LEAGUE_RANK -> {
-                    val leagueRankData = calculateLeagueRankProgression(stats)
-                    val selectedData = selectedManagerData.associate { manager ->
-                        manager.managerId to (leagueRankData[manager.managerId]?.map { -it } ?: emptyList())
+                        if (data.isNotEmpty()) {
+                            LineChart(
+                                data = data,
+                                labels = stats.managerStats.mapValues { it.value.managerName },
+                                title = "Overall Rank Progression",
+                                colors = chartColors,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
                     }
+                    ChartType.LEAGUE_RANK -> {
+                        val leagueRankData = calculateLeagueRankProgression(stats)
+                        val selectedData = selectedManagerData.mapNotNull { manager ->
+                            leagueRankData[manager.managerId]?.let { rankData ->
+                                if (rankData.isNotEmpty()) {
+                                    manager.managerId to rankData.map { -it }
+                                } else {
+                                    null
+                                }
+                            }
+                        }.toMap()
 
-                    LineChart(
-                        data = selectedData,
-                        labels = stats.managerStats.mapValues { it.value.managerName },
-                        title = "League Rank Progression",
-                        colors = chartColors,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
+                        if (selectedData.isNotEmpty()) {
+                            LineChart(
+                                data = selectedData,
+                                labels = stats.managerStats.mapValues { it.value.managerName },
+                                title = "League Rank Progression",
+                                colors = chartColors,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -314,10 +340,12 @@ private fun MemberChip(
         else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     }
 
-    val handleClick: () -> Unit = (if (enabled) onClick else { }) as () -> Unit
-
     Surface(
-        onClick = handleClick,
+        onClick = {
+            if (enabled) {
+                onClick()
+            }
+        },
         shape = RoundedCornerShape(50),
         color = backgroundColor,
         modifier = Modifier.animateContentSize()
